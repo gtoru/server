@@ -9,10 +9,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: acions/checkout@v2
-      - name: build images
-        run: docker build --target test -t gto-test server
+      - uses: actions/checkout@v2
       - name: build deploy image
         run: docker build --target deploy -t gto server
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: build test image
+        run: docker build --target test -t gto-test server
       - name: run unit tests
         run: docker run --rm gto-test
