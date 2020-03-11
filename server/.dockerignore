@@ -1,0 +1,8 @@
+.dockerignore
+.gitignore
+*.DotSettings.*
+.idea/
+**/bin/
+**/obj/
+**/packages/
+Dockerfile

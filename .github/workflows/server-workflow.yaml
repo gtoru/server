@@ -1,0 +1,18 @@
+name: Server Workflow
+
+on:
+  push:
+    paths:
+      - "server/*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: acions/checkout@v2
+      - name: build images
+        run: docker build --target test -t gto-test server
+      - name: build deploy image
+        run: docker build --target deploy -t gto server
+      - name: run unit tests
+        run: docker run --rm gto-test
