@@ -1,4 +1,4 @@
-namespace server.core.Domain.Authorization
+namespace server.core.Domain.Authentication
 {
     public enum HashAlgorithm
     {

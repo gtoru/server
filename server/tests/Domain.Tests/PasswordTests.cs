@@ -2,7 +2,8 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
-using server.core.Domain.Authorization;
+using server.core.Domain.Authentication;
+using server.core.Domain.Error;
 
 namespace Domain.Tests
 {
@@ -25,10 +26,9 @@ namespace Domain.Tests
         [Test]
         public void Should_create_password()
         {
-            var password = Password.Create(HashAlgorithm.BCrypt, RawPassword);
+            Action passwordCreation = () => Password.Create(HashAlgorithm.BCrypt, RawPassword);
 
-            password.HashAlgorithm.Should().Be(HashAlgorithm.BCrypt);
-            password.HashedPassword.Should().NotBeEmpty();
+            passwordCreation.Should().NotThrow();
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace Domain.Tests
             var longPassword = Enumerable.Repeat('a', 51).ToString();
             Action passwordCreation = () => Password.Create(HashAlgorithm.BCrypt, longPassword);
 
-            passwordCreation.Should().Throw<ArgumentException>("because password is longer than 50 symbols");
+            passwordCreation.Should().Throw<PasswordTooLongException>("because password is longer than 50 symbols");
         }
 
         [Test]

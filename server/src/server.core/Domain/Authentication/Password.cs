@@ -1,14 +1,13 @@
-using System;
-using System.ComponentModel;
+using server.core.Domain.Error;
 
-namespace server.core.Domain.Authorization
+namespace server.core.Domain.Authentication
 {
-    public readonly struct Password
+    public class Password
     {
-        public readonly HashAlgorithm HashAlgorithm;
-        public readonly string HashedPassword;
+        public HashAlgorithm HashAlgorithm { get; }
+        public string HashedPassword { get; }
 
-        private Password(HashAlgorithm hashAlgorithm, string hashedPassword)
+        public Password(HashAlgorithm hashAlgorithm, string hashedPassword)
         {
             HashAlgorithm = hashAlgorithm;
             HashedPassword = hashedPassword;
@@ -17,7 +16,7 @@ namespace server.core.Domain.Authorization
         public static Password Create(HashAlgorithm hashAlgorithm, string password)
         {
             if (password.Length > 50)
-                throw new ArgumentException("password should not be more than 50 symbols");
+                throw new PasswordTooLongException();
 
             switch (hashAlgorithm)
             {
@@ -26,7 +25,7 @@ namespace server.core.Domain.Authorization
                         HashAlgorithm.BCrypt,
                         BCrypt.Net.BCrypt.EnhancedHashPassword(password));
                 default:
-                    throw new InvalidEnumArgumentException($"unknown hash algorithm: {hashAlgorithm}");
+                    throw new UnknownHashAlgorithmException();
             }
         }
 
@@ -37,7 +36,7 @@ namespace server.core.Domain.Authorization
                 case HashAlgorithm.BCrypt:
                     return BCrypt.Net.BCrypt.EnhancedVerify(password, HashedPassword);
                 default:
-                    throw new InvalidEnumArgumentException($"unknown hashing algorithm: {HashAlgorithm}");
+                    throw new UnknownHashAlgorithmException();
             }
         }
     }
