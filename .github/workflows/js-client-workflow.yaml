@@ -48,9 +48,10 @@ jobs:
         run: yarn workspace @gtoru/js-client install
       - name: build
         run: yarn workspace @gtoru/js-client build
-      - name: prepare npmrc
-        run: echo "registry=https://npm.pkg.github.com/gtoru" > .npmrc
-        working-directory: client/js
-      - name: publish
-        run: npm publish
-        working-directory: client/js
+      - uses: actions/setup-node@v1
+        with:
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@gtoru"
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
