@@ -8,20 +8,13 @@ namespace Domain.Tests
     public class EmailTests
     {
         private const string Address = "foo@bar.baz";
+
         [Test]
         public void Should_be_unverified_on_creation()
         {
             var email = Email.Create(Address);
 
             email.IsVerified.Should().BeFalse();
-        }
-
-        [Test]
-        public void Should_initialise_address_field()
-        {
-            var email = Email.Create(Address);
-
-            email.Address.Should().BeEquivalentTo(Address);
         }
 
         [Test]
@@ -32,6 +25,14 @@ namespace Domain.Tests
             email.Verify();
 
             email.IsVerified.Should().BeTrue();
+        }
+
+        [Test]
+        public void Should_initialise_address_field()
+        {
+            var email = Email.Create(Address);
+
+            email.Address.Should().BeEquivalentTo(Address);
         }
     }
 }

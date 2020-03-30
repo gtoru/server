@@ -29,9 +29,7 @@ namespace server.core.Infrastructure.Dto
         {
             if (!Enum.TryParse<HashAlgorithm>(user.HashAlgorithm, out var hashAlgorithm)
                 || !Enum.IsDefined(typeof(HashAlgorithm), hashAlgorithm))
-            {
                 throw new UnknownHashAlgorithmException();
-            }
 
             return new User(new Password(hashAlgorithm, user.PasswordHash),
                 new Email(user.EmailAddress, user.IsVerified), user.UserId);

@@ -4,14 +4,14 @@ namespace server.core.Domain.Authentication
 {
     public class Password
     {
-        public HashAlgorithm HashAlgorithm { get; }
-        public string HashedPassword { get; }
-
         public Password(HashAlgorithm hashAlgorithm, string hashedPassword)
         {
             HashAlgorithm = hashAlgorithm;
             HashedPassword = hashedPassword;
         }
+
+        public HashAlgorithm HashAlgorithm { get; }
+        public string HashedPassword { get; }
 
         public static Password Create(HashAlgorithm hashAlgorithm, string password)
         {

@@ -2,14 +2,14 @@ namespace server.core.Domain.Authentication
 {
     public class Email
     {
-        public bool IsVerified { get; private set; }
-        public string Address { get; }
-
         public Email(string address, bool isVerified)
         {
             Address = address;
             IsVerified = isVerified;
         }
+
+        public bool IsVerified { get; private set; }
+        public string Address { get; }
 
         public static Email Create(string address)
         {
