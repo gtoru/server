@@ -47,6 +47,6 @@ jobs:
       - name: install deps
         run: yarn workspace @gtoru/js-client install
       - name: build
-        run: yarn worskapce @gtoru/js-client build
+        run: yarn workspace @gtoru/js-client build
       - name: publish
         run: yarn workspace @gtoru/js-client publish
