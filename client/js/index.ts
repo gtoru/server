@@ -1,1 +1,1 @@
-export { AuthClient } from "./src/authentication";
+export { AuthClient } from "./src/auth/authclient";
