@@ -1,8 +1,16 @@
 {
-  "name": "gtoru-js",
+  "name": "@gtoru/js-client",
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gtoru/server.git",
+    "directory": "client/js"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "license": "MIT",
   "jest": {
     "preset": "ts-jest/presets/default",

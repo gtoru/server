@@ -37,3 +37,16 @@ jobs:
         run: yarn workspace gtoru-js install
       - name: run unit tests
         run: yarn workspace gtoru-js test
+
+  npm-publish:
+    runs-on: ubuntu-latest
+    needs: [eslint-job, build, run-tests]
+    steps:
+      - uses: actions/checkout@v2
+        if: ${{ github.ref }} == 'master'
+      - name: install deps
+        run: yarn workspace gtoru-js install
+      - name: build
+        run: yarn worskapce gtoru-js build
+      - name: publish
+        run: yarn workspace gtoru-js publish
