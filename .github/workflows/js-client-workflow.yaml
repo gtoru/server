@@ -16,27 +16,27 @@ jobs:
         with:
           node-version: "13.8"
       - name: Install ESLint
-        run: yarn workspace gtoru-js add eslint
+        run: yarn workspace @gtoru/js-client add eslint
       - name: Run ESLint
-        run: yarn workspace gtoru-js lint
+        run: yarn workspace @gtoru/js-client lint
 
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: install deps
-        run: yarn workspace gtoru-js install
+        run: yarn workspace @gtoru/js-client install
       - name: build client
-        run: yarn workspace gtoru-js build
+        run: yarn workspace @gtoru/js-client build
 
   run-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: install deps
-        run: yarn workspace gtoru-js install
+        run: yarn workspace @gtoru/js-client install
       - name: run unit tests
-        run: yarn workspace gtoru-js test
+        run: yarn workspace @gtoru/js-client test
 
   npm-publish:
     runs-on: ubuntu-latest
@@ -45,8 +45,8 @@ jobs:
       - uses: actions/checkout@v2
         if: ${{ github.ref }} == 'master'
       - name: install deps
-        run: yarn workspace gtoru-js install
+        run: yarn workspace @gtoru/js-client install
       - name: build
-        run: yarn worskapce gtoru-js build
+        run: yarn worskapce @gtoru/js-client build
       - name: publish
-        run: yarn workspace gtoru-js publish
+        run: yarn workspace @gtoru/js-client publish
