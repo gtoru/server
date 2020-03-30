@@ -53,5 +53,6 @@ jobs:
           registry-url: "https://npm.pkg.github.com"
           scope: "@gtoru"
       - run: npm publish
+        working-directory: client/js
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
