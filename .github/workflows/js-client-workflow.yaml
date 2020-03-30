@@ -1,0 +1,39 @@
+name: JS Client Workflow
+
+on:
+  push:
+    paths:
+      - "client/js/*"
+      - ".github/workflows/js-client-workflow.yaml"
+
+jobs:
+  eslint_job:
+    runs-on: ubuntu-18.04
+    name: Check ESLint
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "13.8"
+      - name: Install ESLint
+        run: yarn workspace gtoru-js add eslint
+      - name: Run ESLint
+        run: yarn workspace gtoru-js lint
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: install deps
+        run: yarn workspace gtoru-js install
+      - name: build client
+        run: yarn workspace gtoru-js build
+
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: install deps
+        run: yarn workspace gtoru-js install
+      - name: run unit tests
+        run: yarn workspace gtoru-js test
