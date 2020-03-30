@@ -7,7 +7,7 @@ on:
       - ".github/workflows/js-client-workflow.yaml"
 
 jobs:
-  eslint_job:
+  eslint-job:
     runs-on: ubuntu-18.04
     name: Check ESLint
     steps:
