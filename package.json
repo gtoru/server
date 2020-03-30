@@ -9,7 +9,10 @@
   },
   "scripts": {
     "cm": "git-cz",
-    "cms": "git-cz -S"
+    "cms": "git-cz -S",
+    "_dtest_build": "docker build --target test -t gto-server-test server/",
+    "_dtest_run": "docker run --rm gto-server-test",
+    "dtest": "yarn _dtest_build && yarn _dtest_run"
   },
   "husky": {
     "hooks": {

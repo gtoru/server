@@ -18,7 +18,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: build test image
-        run: docker build --target test -t gto-test server
-      - name: run unit tests
-        run: docker run --rm gto-test
+      - name: build and run tests in Docker
+        run: yarn dtest
