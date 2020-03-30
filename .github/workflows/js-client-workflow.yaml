@@ -49,4 +49,5 @@ jobs:
       - name: build
         run: yarn workspace @gtoru/js-client build
       - name: publish
-        run: yarn workspace @gtoru/js-client publish
+        run: npm publish
+        working-directory: client/js
