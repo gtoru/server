@@ -4,9 +4,9 @@ using NUnit.Framework;
 using server.core.Domain;
 using server.core.Domain.Authentication;
 using server.core.Domain.Error;
-using server.core.Infrastructure.Dto;
+using server.core.Infrastructure.Models;
 
-namespace Infrastructure.Tests
+namespace Infrastructure.Tests.Models
 {
     [TestFixture]
     public class UserTests
@@ -17,7 +17,7 @@ namespace Infrastructure.Tests
         [Test]
         public void Should_create_correct_domain_from_dto()
         {
-            var dto = new UserDto
+            var dto = new UserModel
             {
                 EmailAddress = Address,
                 HashAlgorithm = "BCrypt",
@@ -25,7 +25,7 @@ namespace Infrastructure.Tests
                 PasswordHash = "1234",
                 UserId = Guid.NewGuid()
             };
-            var user = UserDto.ToDomain(dto);
+            var user = UserModel.ToDomain(dto);
 
             user.UserId.Should().Be(dto.UserId);
             user.Email.Address.Should().BeEquivalentTo(dto.EmailAddress);
@@ -38,7 +38,7 @@ namespace Infrastructure.Tests
         public void Should_create_correct_dto()
         {
             var user = User.CreateNew(Address, Password);
-            var dto = UserDto.FromDomain(user);
+            var dto = UserModel.FromDomain(user);
 
             dto.EmailAddress.Should().BeEquivalentTo(user.Email.Address);
             dto.HashAlgorithm.Should().BeEquivalentTo(user.Password.HashAlgorithm.ToString());
@@ -50,12 +50,12 @@ namespace Infrastructure.Tests
         [Test]
         public void Should_fail_on_unknown_hash_algorithm()
         {
-            var dto = new UserDto
+            var dto = new UserModel
             {
                 HashAlgorithm = "1235"
             };
 
-            Action userCreation = () => UserDto.ToDomain(dto);
+            Action userCreation = () => UserModel.ToDomain(dto);
 
             userCreation.Should().Throw<UnknownHashAlgorithmException>();
         }
