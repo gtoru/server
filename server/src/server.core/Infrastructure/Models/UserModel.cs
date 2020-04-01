@@ -1,21 +1,32 @@
 using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using server.core.Domain;
 using server.core.Domain.Authentication;
 using server.core.Domain.Error;
 
-namespace server.core.Infrastructure.Dto
+namespace server.core.Infrastructure.Models
 {
-    public class UserDto
+    public class UserModel
     {
+        [Key]
         public Guid UserId { get; set; }
+
+        [Required, DefaultValue(false)]
         public bool IsVerified { get; set; }
+
+        [Required]
         public string EmailAddress { get; set; }
+
+        [Required]
         public string HashAlgorithm { get; set; }
+
+        [Required]
         public string PasswordHash { get; set; }
 
-        public static UserDto FromDomain(User user)
+        public static UserModel FromDomain(User user)
         {
-            return new UserDto
+            return new UserModel
             {
                 UserId = user.UserId,
                 EmailAddress = user.Email.Address,
@@ -25,7 +36,7 @@ namespace server.core.Infrastructure.Dto
             };
         }
 
-        public static User ToDomain(UserDto user)
+        public static User ToDomain(UserModel user)
         {
             if (!Enum.TryParse<HashAlgorithm>(user.HashAlgorithm, out var hashAlgorithm)
                 || !Enum.IsDefined(typeof(HashAlgorithm), hashAlgorithm))
