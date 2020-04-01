@@ -5,10 +5,12 @@ namespace server.core.Infrastructure.Contexts
 {
     public class UserContext : DbContext
     {
-        public DbSet<UserModel> Users { get; set; }
-
         public UserContext(DbContextOptions<UserContext> options)
-            : base(options) {}
+            : base(options)
+        {
+        }
+
+        public DbSet<UserModel> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

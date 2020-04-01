@@ -12,7 +12,8 @@ namespace server.core.Infrastructure.Models
         [Key]
         public Guid UserId { get; set; }
 
-        [Required, DefaultValue(false)]
+        [Required]
+        [DefaultValue(false)]
         public bool IsVerified { get; set; }
 
         [Required]

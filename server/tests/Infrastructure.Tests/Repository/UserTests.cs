@@ -14,12 +14,6 @@ namespace Infrastructure.Tests.Repository
     [TestFixture]
     public class UserTests
     {
-        private const string Email = "foo@bar.baz";
-        private const string Password = "qwerty";
-
-        private SqliteConnection _connection;
-        private UserRepository _repository;
-
         [SetUp]
         public void SetUp()
         {
@@ -37,6 +31,40 @@ namespace Infrastructure.Tests.Repository
         public void TearDown()
         {
             _connection.Close();
+        }
+
+        private const string Email = "foo@bar.baz";
+        private const string Password = "qwerty";
+
+        private SqliteConnection _connection;
+        private UserRepository _repository;
+
+        [Test]
+        public async Task Should_fail_to_add_existing_email()
+        {
+            var firstUser = User.CreateNew(Email, Password);
+            var secondUser = User.CreateNew(Email, Password);
+
+            await _repository.AddUserAsync(firstUser);
+
+            Func<Task> secondUserAddition = async () => await _repository.AddUserAsync(secondUser);
+
+            secondUserAddition.Should().Throw<UserAlreadyExistsException>();
+        }
+
+        [Test]
+        public async Task Should_find_existing_user()
+        {
+            var user = User.CreateNew(Email, Password);
+
+            await _repository.AddUserAsync(user);
+
+            var foundUser = await _repository.FindUserAsync(user.UserId);
+
+            foundUser.UserId.Should().Be(user.UserId);
+            foundUser.Email.Address.Should().BeEquivalentTo(user.Email.Address);
+            foundUser.Email.IsVerified.Should().Be(user.Email.IsVerified);
+            foundUser.Password.Verify(Password).Should().BeTrue();
         }
 
         [Test]
@@ -57,34 +85,6 @@ namespace Infrastructure.Tests.Repository
             Func<Task> userSearch = async () => await _repository.FindUserAsync(Guid.NewGuid());
 
             userSearch.Should().Throw<UserNotFoundException>();
-        }
-
-        [Test]
-        public async Task Should_find_existing_user()
-        {
-            var user = User.CreateNew(Email, Password);
-
-            await _repository.AddUserAsync(user);
-
-            var foundUser = await _repository.FindUserAsync(user.UserId);
-
-            foundUser.UserId.Should().Be(user.UserId);
-            foundUser.Email.Address.Should().BeEquivalentTo(user.Email.Address);
-            foundUser.Email.IsVerified.Should().Be(user.Email.IsVerified);
-            foundUser.Password.Verify(Password).Should().BeTrue();
-        }
-
-        [Test]
-        public async Task Should_fail_to_add_existing_email()
-        {
-            var firstUser = User.CreateNew(Email, Password);
-            var secondUser = User.CreateNew(Email, Password);
-
-            await _repository.AddUserAsync(firstUser);
-
-            Func<Task> secondUserAddition = async () => await _repository.AddUserAsync(secondUser);
-
-            secondUserAddition.Should().Throw<UserAlreadyExistsException>();
         }
     }
 }
