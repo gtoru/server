@@ -3,7 +3,7 @@ name: Server Workflow
 on:
   push:
     paths:
-      - "server/*"
+      - "server/**/*"
       - ".github/workflows/server-workflow.yaml"
 
 jobs:
