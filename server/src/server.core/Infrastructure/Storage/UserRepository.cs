@@ -17,6 +17,17 @@ namespace server.core.Infrastructure.Storage
             _dbContext = dbContext;
         }
 
+        public async Task<User> FindUserAsync(string email)
+        {
+            var user = await _dbContext.Users
+                .SingleOrDefaultAsync(u => u.EmailAddress == email);
+
+            if (user is null)
+                throw new UserNotFoundException();
+
+            return UserModel.ToDomain(user);
+        }
+
         public async Task<User> FindUserAsync(Guid id)
         {
             var user = await _dbContext.Users.FindAsync(id);

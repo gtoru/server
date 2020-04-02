@@ -69,6 +69,20 @@ namespace Infrastructure.Tests.Repository
         }
 
         [Test]
+        public async Task Should_find_user_by_email()
+        {
+            var user = User.CreateNew(Email, Password);
+
+            await _unitOfWork.Users.AddUserAsync(user);
+            await _unitOfWork.SaveAsync();
+
+            var foundUser = await _unitOfWork.Users.FindUserAsync(Email);
+
+            foundUser.Email.Address.Should().BeEquivalentTo(Email);
+            foundUser.Password.Verify(Password).Should().BeTrue();
+        }
+
+        [Test]
         public async Task Should_not_throw_on_existing_user_search()
         {
             var user = User.CreateNew(Email, Password);
@@ -79,6 +93,14 @@ namespace Infrastructure.Tests.Repository
             Func<Task> userSearch = async () => await _unitOfWork.Users.FindUserAsync(user.UserId);
 
             userSearch.Should().NotThrow();
+        }
+
+        [Test]
+        public void Should_throw_on_non_existent_email()
+        {
+            Func<Task> userSearch = async () => await _unitOfWork.Users.FindUserAsync(Email);
+
+            userSearch.Should().Throw<UserNotFoundException>();
         }
 
         [Test]
