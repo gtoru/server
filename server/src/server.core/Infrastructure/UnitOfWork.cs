@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using server.core.Domain.Storage;
-using server.core.Infrastructure.Contexts;
 
 namespace server.core.Infrastructure
 {
@@ -8,6 +7,7 @@ namespace server.core.Infrastructure
     {
         private readonly AppDbContext _dbContext;
         private IUserRepository _users;
+        private ISessionRepository _sessions;
 
         public UnitOfWork(AppDbContext dbContext)
         {
@@ -22,6 +22,16 @@ namespace server.core.Infrastructure
                 if (_users is null)
                     _users = new UserRepository(_dbContext);
                 return _users;
+            }
+        }
+
+        public ISessionRepository Sessions
+        {
+            get
+            {
+                if (_sessions is null)
+                    _sessions = new SessionRepository(_dbContext);
+                return _sessions;
             }
         }
 

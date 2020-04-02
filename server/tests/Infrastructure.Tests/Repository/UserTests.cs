@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using server.core.Domain;
 using server.core.Infrastructure;
-using server.core.Infrastructure.Contexts;
 using server.core.Infrastructure.Error;
 
 namespace Infrastructure.Tests.Repository
