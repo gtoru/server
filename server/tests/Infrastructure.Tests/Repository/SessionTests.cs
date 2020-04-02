@@ -13,9 +13,6 @@ namespace Infrastructure.Tests.Repository
     [TestFixture]
     public class SessionTests
     {
-        private SqliteConnection _connection;
-        private UnitOfWork _unitOfWork;
-
         [SetUp]
         public void SetUp()
         {
@@ -35,6 +32,9 @@ namespace Infrastructure.Tests.Repository
             _connection.Close();
         }
 
+        private SqliteConnection _connection;
+        private UnitOfWork _unitOfWork;
+
         [Test]
         public async Task Should_add_new_session_and_find_it()
         {
@@ -51,19 +51,16 @@ namespace Infrastructure.Tests.Repository
         }
 
         [Test]
-        public async Task Should_throw_when_trying_to_add_existing_session()
+        public async Task Should_not_throw_on_existing_user_search()
         {
-            var userId = Guid.NewGuid();
-            var firstSession = Session.CreateNew(userId);
+            var session = Session.CreateNew(Guid.NewGuid());
 
-            await _unitOfWork.Sessions.AddSessionAsync(firstSession);
+            await _unitOfWork.Sessions.AddSessionAsync(session);
             await _unitOfWork.SaveAsync();
 
-            var secondSession = Session.CreateNew(userId);
+            Func<Task> sessionSearch = async () => await _unitOfWork.Sessions.FindSessionAsync(session.Id);
 
-            Func<Task> sessionCreation = async () => await _unitOfWork.Sessions.AddSessionAsync(secondSession);
-
-            sessionCreation.Should().Throw<SessionAlreadyExistsException>();
+            sessionSearch.Should().NotThrow();
         }
 
         [Test]
@@ -77,16 +74,19 @@ namespace Infrastructure.Tests.Repository
         }
 
         [Test]
-        public async Task Should_not_throw_on_existing_user_search()
+        public async Task Should_throw_when_trying_to_add_existing_session()
         {
-            var session = Session.CreateNew(Guid.NewGuid());
+            var userId = Guid.NewGuid();
+            var firstSession = Session.CreateNew(userId);
 
-            await _unitOfWork.Sessions.AddSessionAsync(session);
+            await _unitOfWork.Sessions.AddSessionAsync(firstSession);
             await _unitOfWork.SaveAsync();
 
-            Func<Task> sessionSearch = async () => await _unitOfWork.Sessions.FindSessionAsync(session.Id);
+            var secondSession = Session.CreateNew(userId);
 
-            sessionSearch.Should().NotThrow();
+            Func<Task> sessionCreation = async () => await _unitOfWork.Sessions.AddSessionAsync(secondSession);
+
+            sessionCreation.Should().Throw<SessionAlreadyExistsException>();
         }
     }
 }
