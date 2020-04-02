@@ -6,7 +6,7 @@ using server.core.Domain.Storage;
 using server.core.Infrastructure.Error;
 using server.core.Infrastructure.Models;
 
-namespace server.core.Infrastructure
+namespace server.core.Infrastructure.Storage
 {
     public class SessionRepository : ISessionRepository
     {
