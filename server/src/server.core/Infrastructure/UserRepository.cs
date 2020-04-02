@@ -11,22 +11,16 @@ namespace server.core.Infrastructure
 {
     public class UserRepository : IUserRepository
     {
-        private readonly Func<UserContext> _dbFactory;
+        private readonly AppDbContext _dbContext;
 
-        public UserRepository(Func<UserContext> dbFactory)
+        public UserRepository(AppDbContext dbContext)
         {
-            _dbFactory = dbFactory;
-
-            using var ctx = dbFactory();
-
-            ctx.Database.EnsureCreated();
+            _dbContext = dbContext;
         }
 
         public async Task<User> FindUserAsync(Guid id)
         {
-            await using var ctx = _dbFactory();
-
-            var user = await ctx.Users.FindAsync(id);
+            var user = await _dbContext.Users.FindAsync(id);
 
             if (user is null)
                 throw new UserNotFoundException();
@@ -36,16 +30,15 @@ namespace server.core.Infrastructure
 
         public async Task AddUserAsync(User user)
         {
-            await using var ctx = _dbFactory();
+            var userModel = UserModel.FromDomain(user);
 
-            var foundUser = await ctx.Users
-                .SingleOrDefaultAsync(u => u.EmailAddress == user.Email.Address);
+            var foundUser = await _dbContext.Users
+                .SingleOrDefaultAsync(u => u.EmailAddress == userModel.EmailAddress);
 
             if (foundUser != null)
                 throw new UserAlreadyExistsException();
 
-            await ctx.Users.AddAsync(UserModel.FromDomain(user));
-            await ctx.SaveChangesAsync();
+            await _dbContext.Users.AddAsync(userModel);
         }
     }
 }

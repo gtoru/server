@@ -3,9 +3,9 @@ using server.core.Infrastructure.Models;
 
 namespace server.core.Infrastructure.Contexts
 {
-    public class UserContext : DbContext
+    public class AppDbContext : DbContext
     {
-        public UserContext(DbContextOptions<UserContext> options)
+        public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
         }

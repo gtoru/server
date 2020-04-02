@@ -20,11 +20,11 @@ namespace Infrastructure.Tests.Repository
             _connection = new SqliteConnection("DataSource=:memory:");
             _connection.Open();
 
-            var options = new DbContextOptionsBuilder<UserContext>()
+            var options = new DbContextOptionsBuilder<AppDbContext>()
                 .UseSqlite(_connection)
                 .Options;
 
-            _repository = new UserRepository(() => new UserContext(options));
+            _unitOfWork = new UnitOfWork(new AppDbContext(options));
         }
 
         [TearDown]
@@ -37,7 +37,7 @@ namespace Infrastructure.Tests.Repository
         private const string Password = "qwerty";
 
         private SqliteConnection _connection;
-        private UserRepository _repository;
+        private IUnitOfWork _unitOfWork;
 
         [Test]
         public async Task Should_fail_to_add_existing_email()
@@ -45,9 +45,10 @@ namespace Infrastructure.Tests.Repository
             var firstUser = User.CreateNew(Email, Password);
             var secondUser = User.CreateNew(Email, Password);
 
-            await _repository.AddUserAsync(firstUser);
+            await _unitOfWork.Users.AddUserAsync(firstUser);
+            await _unitOfWork.SaveAsync();
 
-            Func<Task> secondUserAddition = async () => await _repository.AddUserAsync(secondUser);
+            Func<Task> secondUserAddition = async () => await _unitOfWork.Users.AddUserAsync(secondUser);
 
             secondUserAddition.Should().Throw<UserAlreadyExistsException>();
         }
@@ -57,9 +58,10 @@ namespace Infrastructure.Tests.Repository
         {
             var user = User.CreateNew(Email, Password);
 
-            await _repository.AddUserAsync(user);
+            await _unitOfWork.Users.AddUserAsync(user);
+            await _unitOfWork.SaveAsync();
 
-            var foundUser = await _repository.FindUserAsync(user.UserId);
+            var foundUser = await _unitOfWork.Users.FindUserAsync(user.UserId);
 
             foundUser.UserId.Should().Be(user.UserId);
             foundUser.Email.Address.Should().BeEquivalentTo(user.Email.Address);
@@ -72,9 +74,10 @@ namespace Infrastructure.Tests.Repository
         {
             var user = User.CreateNew(Email, Password);
 
-            await _repository.AddUserAsync(user);
+            await _unitOfWork.Users.AddUserAsync(user);
+            await _unitOfWork.SaveAsync();
 
-            Func<Task> userSearch = async () => await _repository.FindUserAsync(user.UserId);
+            Func<Task> userSearch = async () => await _unitOfWork.Users.FindUserAsync(user.UserId);
 
             userSearch.Should().NotThrow();
         }
@@ -82,7 +85,7 @@ namespace Infrastructure.Tests.Repository
         [Test]
         public void Should_throw_on_non_existent_user()
         {
-            Func<Task> userSearch = async () => await _repository.FindUserAsync(Guid.NewGuid());
+            Func<Task> userSearch = async () => await _unitOfWork.Users.FindUserAsync(Guid.NewGuid());
 
             userSearch.Should().Throw<UserNotFoundException>();
         }
