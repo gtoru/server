@@ -21,7 +21,7 @@ namespace server.core.Infrastructure
         {
             var sessionModel = SessionModel.FromDomain(session);
 
-            var foundSession = _dbContext.Sessions
+            var foundSession = await _dbContext.Sessions
                 .SingleOrDefaultAsync(m =>
                     m.UserId == sessionModel.UserId);
 
