@@ -8,5 +8,7 @@ namespace server.core.Domain.Storage
     {
         Task AddSessionAsync(Session session);
         Task<Session> FindSessionAsync(Guid sessionId);
+
+        Task<Session> FindSessionByUserAsync(Guid userId);
     }
 }

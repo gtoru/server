@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using server.core.Domain.Authentication;
@@ -37,6 +38,17 @@ namespace server.core.Infrastructure.Storage
                 await _dbContext.Sessions.FindAsync(sessionId);
 
             if (foundSession is null)
+                throw new SessionNotFoundException();
+
+            return SessionModel.ToDomain(foundSession);
+        }
+
+        public async Task<Session> FindSessionByUserAsync(Guid userId)
+        {
+            var foundSession =
+                await _dbContext.Sessions.SingleOrDefaultAsync(s => s.UserId == userId);
+
+            if (foundSession == null)
                 throw new SessionNotFoundException();
 
             return SessionModel.ToDomain(foundSession);
