@@ -1,11 +1,9 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using server.core.Domain.Authentication;
 using server.core.Domain.Storage;
 using server.core.Infrastructure.Error;
-using server.core.Infrastructure.Models;
 
 namespace server.core.Infrastructure.Storage
 {
@@ -20,16 +18,14 @@ namespace server.core.Infrastructure.Storage
 
         public async Task AddSessionAsync(Session session)
         {
-            var sessionModel = SessionModel.FromDomain(session);
-
             var foundSession = await _dbContext.Sessions
                 .SingleOrDefaultAsync(m =>
-                    m.UserId == sessionModel.UserId);
+                    m.UserId == session.UserId);
 
             if (foundSession != null)
                 throw new SessionAlreadyExistsException();
 
-            await _dbContext.Sessions.AddAsync(sessionModel);
+            await _dbContext.Sessions.AddAsync(session);
         }
 
         public async Task<Session> FindSessionAsync(Guid sessionId)
@@ -40,7 +36,7 @@ namespace server.core.Infrastructure.Storage
             if (foundSession is null)
                 throw new SessionNotFoundException();
 
-            return SessionModel.ToDomain(foundSession);
+            return foundSession;
         }
 
         public async Task<Session> FindSessionByUserAsync(Guid userId)
@@ -51,7 +47,17 @@ namespace server.core.Infrastructure.Storage
             if (foundSession == null)
                 throw new SessionNotFoundException();
 
-            return SessionModel.ToDomain(foundSession);
+            return foundSession;
+        }
+
+        public async Task PatchSessionAsync(Guid sessionId, Action<Session> patch)
+        {
+            var foundSession = await _dbContext.Sessions.FindAsync(sessionId);
+
+            if (foundSession is null)
+                throw new SessionNotFoundException();
+
+            patch(foundSession);
         }
     }
 }

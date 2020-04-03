@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using server.core.Domain;
 using server.core.Domain.Storage;
 using server.core.Infrastructure.Error;
-using server.core.Infrastructure.Models;
 
 namespace server.core.Infrastructure.Storage
 {
@@ -20,12 +19,12 @@ namespace server.core.Infrastructure.Storage
         public async Task<User> FindUserAsync(string email)
         {
             var user = await _dbContext.Users
-                .SingleOrDefaultAsync(u => u.EmailAddress == email);
+                .SingleOrDefaultAsync(u => u.Email.Address == email);
 
             if (user is null)
                 throw new UserNotFoundException();
 
-            return UserModel.ToDomain(user);
+            return user;
         }
 
         public async Task<User> FindUserAsync(Guid id)
@@ -35,20 +34,18 @@ namespace server.core.Infrastructure.Storage
             if (user is null)
                 throw new UserNotFoundException();
 
-            return UserModel.ToDomain(user);
+            return user;
         }
 
         public async Task AddUserAsync(User user)
         {
-            var userModel = UserModel.FromDomain(user);
-
             var foundUser = await _dbContext.Users
-                .SingleOrDefaultAsync(u => u.EmailAddress == userModel.EmailAddress);
+                .SingleOrDefaultAsync(u => u.Email.Address == user.Email.Address);
 
             if (foundUser != null)
                 throw new UserAlreadyExistsException();
 
-            await _dbContext.Users.AddAsync(userModel);
+            await _dbContext.Users.AddAsync(user);
         }
     }
 }

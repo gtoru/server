@@ -4,6 +4,10 @@ namespace server.core.Domain.Authentication
 {
     public class Password
     {
+        public Password()
+        {
+        }
+
         public Password(HashAlgorithm hashAlgorithm, string hashedPassword)
         {
             HashAlgorithm = hashAlgorithm;

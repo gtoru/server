@@ -5,6 +5,10 @@ namespace server.core.Domain
 {
     public class User
     {
+        public User()
+        {
+        }
+
         private User(Password password, Email email)
         {
             Password = password;

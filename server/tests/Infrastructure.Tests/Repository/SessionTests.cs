@@ -44,9 +44,27 @@ namespace Infrastructure.Tests.Repository
             await _unitOfWork.Sessions.AddSessionAsync(session);
             await _unitOfWork.SaveAsync();
 
-            var foundSession = await _unitOfWork.Sessions.FindSessionAsync(session.Id);
+            var foundSession = await _unitOfWork.Sessions.FindSessionAsync(session.SessionId);
 
-            foundSession.Id.Should().Be(session.Id);
+            foundSession.SessionId.Should().Be(session.SessionId);
+            foundSession.UserId.Should().Be(userId);
+        }
+
+        [Test]
+        public async Task Should_find_session_by_user_id()
+        {
+            var userId = Guid.NewGuid();
+            var session = Session.CreateNew(userId);
+
+            await _unitOfWork.Sessions.AddSessionAsync(session);
+            await _unitOfWork.SaveAsync();
+
+            Func<Task<Session>> sessionSearch = async () => await _unitOfWork.Sessions.FindSessionByUserAsync(userId);
+
+            sessionSearch.Should().NotThrow();
+
+            var foundSession = await sessionSearch();
+
             foundSession.UserId.Should().Be(userId);
         }
 
@@ -58,9 +76,19 @@ namespace Infrastructure.Tests.Repository
             await _unitOfWork.Sessions.AddSessionAsync(session);
             await _unitOfWork.SaveAsync();
 
-            Func<Task> sessionSearch = async () => await _unitOfWork.Sessions.FindSessionAsync(session.Id);
+            Func<Task> sessionSearch = async () => await _unitOfWork.Sessions.FindSessionAsync(session.SessionId);
 
             sessionSearch.Should().NotThrow();
+        }
+
+        [Test]
+        public void Should_throw_when_session_for_user_doesnt_exist()
+        {
+            var userId = Guid.NewGuid();
+
+            Func<Task> sessionSearch = async () => await _unitOfWork.Sessions.FindSessionByUserAsync(userId);
+
+            sessionSearch.Should().Throw<SessionNotFoundException>();
         }
 
         [Test]
@@ -87,34 +115,6 @@ namespace Infrastructure.Tests.Repository
             Func<Task> sessionCreation = async () => await _unitOfWork.Sessions.AddSessionAsync(secondSession);
 
             sessionCreation.Should().Throw<SessionAlreadyExistsException>();
-        }
-
-        [Test]
-        public async Task Should_find_session_by_user_id()
-        {
-            var userId = Guid.NewGuid();
-            var session = Session.CreateNew(userId);
-
-            await _unitOfWork.Sessions.AddSessionAsync(session);
-            await _unitOfWork.SaveAsync();
-
-            Func<Task<Session>> sessionSearch = async () => await _unitOfWork.Sessions.FindSessionByUserAsync(userId);
-
-            sessionSearch.Should().NotThrow();
-
-            var foundSession = await sessionSearch();
-
-            foundSession.UserId.Should().Be(userId);
-        }
-
-        [Test]
-        public void Should_throw_when_session_for_user_doesnt_exist()
-        {
-            var userId = Guid.NewGuid();
-
-            Func<Task> sessionSearch = async () => await _unitOfWork.Sessions.FindSessionByUserAsync(userId);
-
-            sessionSearch.Should().Throw<SessionNotFoundException>();
         }
     }
 }

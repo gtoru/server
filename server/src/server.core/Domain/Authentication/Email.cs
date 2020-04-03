@@ -2,6 +2,10 @@ namespace server.core.Domain.Authentication
 {
     public class Email
     {
+        public Email()
+        {
+        }
+
         public Email(string address, bool isVerified)
         {
             Address = address;

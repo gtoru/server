@@ -13,10 +13,14 @@ namespace server.core.Domain.Authentication
         private static readonly TimeSpan ProlongationPeriod = TimeSpan.FromDays(10);
         private readonly ITimeProvider _timeProvider;
 
+        public Session()
+        {
+        }
+
         public Session(Guid userId, Guid sessionId, DateTime validThrough)
         {
             _timeProvider = new UtcTimeProvider();
-            Id = sessionId;
+            SessionId = sessionId;
             UserId = userId;
             ValidThrough = validThrough;
         }
@@ -24,13 +28,13 @@ namespace server.core.Domain.Authentication
         private Session(Guid userId, ITimeProvider timeProvider = null)
         {
             _timeProvider = timeProvider ?? new UtcTimeProvider();
-            Id = Guid.NewGuid();
+            SessionId = Guid.NewGuid();
             ValidThrough = DateTime.UtcNow + ExpirationTime;
             UserId = userId;
         }
 
         public DateTime ValidThrough { get; private set; }
-        public Guid Id { get; }
+        public Guid SessionId { get; }
         public Guid UserId { get; }
 
         public static Session CreateNew(Guid userId)
