@@ -4,7 +4,7 @@ import { AuthToken, User } from "./models";
 
 let client: AuthClient;
 const baseUrl = "http://localhost";
-const registrationUrl = "/auth/v1/register";
+const registrationUrl = "/auth/v1/user/register";
 
 const token: AuthToken = "1234";
 
