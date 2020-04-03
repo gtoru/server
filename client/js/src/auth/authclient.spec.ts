@@ -5,6 +5,7 @@ import { AuthToken, User } from "./models";
 let client: AuthClient;
 const baseUrl = "http://localhost";
 const registrationUrl = "/auth/v1/user/register";
+const authenticationUrl = "/auth/v1/user/authenticate";
 
 const token: AuthToken = "1234";
 
@@ -51,6 +52,46 @@ test("handles bad request on empty user", async () => {
     expect(response.responseCode).toBe(400);
     expect(response.responseData).toBeUndefined();
     expect(response.errorInfo).toBe(emptyPasswordError);
+
+    scope.done();
+});
+
+test("authenticates user", async () => {
+    const scope = nock(baseUrl)
+        .post(
+            authenticationUrl,
+            JSON.stringify({
+                email: user.email,
+                password: user.password,
+            })
+        )
+        .reply(200, token);
+
+    const response = await client.authenticateAsync(user.email, user.password);
+
+    expect(response.responseCode).toBe(200);
+    expect(response.responseData).toBe(token);
+
+    scope.done();
+});
+
+test("should handle authentication error", async () => {
+    const badAuth = "bad password or login";
+    const scope = nock(baseUrl)
+        .post(
+            authenticationUrl,
+            JSON.stringify({
+                email: user.email,
+                password: "",
+            })
+        )
+        .reply(401, badAuth);
+
+    const response = await client.authenticateAsync(user.email, "");
+
+    expect(response.responseCode).toBe(401);
+    expect(response.errorInfo).toBe(badAuth);
+    expect(response.responseData).toBeUndefined();
 
     scope.done();
 });
