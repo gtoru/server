@@ -20,7 +20,9 @@ namespace Domain.Tests
         {
             var password = Password.Create(HashAlgorithm.BCrypt, RawPassword);
 
-            password.Verify(guess).Should().BeFalse();
+            Action passwordVerification = () => password.Verify(guess);
+
+            passwordVerification.Should().Throw<IncorrectPasswordException>();
         }
 
         [Test]
@@ -45,7 +47,9 @@ namespace Domain.Tests
         {
             var password = Password.Create(HashAlgorithm.BCrypt, RawPassword);
 
-            password.Verify(RawPassword).Should().BeTrue();
+            Action passwordVerification = () => password.Verify(RawPassword);
+
+            passwordVerification.Should().NotThrow();
         }
     }
 }

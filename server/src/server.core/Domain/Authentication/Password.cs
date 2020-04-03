@@ -29,15 +29,17 @@ namespace server.core.Domain.Authentication
             }
         }
 
-        public bool Verify(string password)
+        public void Verify(string password)
         {
-            switch (HashAlgorithm)
+            var passwordVerified = HashAlgorithm switch
             {
-                case HashAlgorithm.BCrypt:
-                    return BCrypt.Net.BCrypt.EnhancedVerify(password, HashedPassword);
-                default:
-                    throw new UnknownHashAlgorithmException();
-            }
+                HashAlgorithm.BCrypt =>
+                BCrypt.Net.BCrypt.EnhancedVerify(password, HashedPassword),
+                _ => throw new UnknownHashAlgorithmException()
+            };
+
+            if (!passwordVerified)
+                throw new IncorrectPasswordException();
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using FluentAssertions;
 using NUnit.Framework;
 using server.core.Domain;
@@ -31,7 +32,9 @@ namespace Domain.Tests
         {
             var user = User.CreateNew(Address, Password);
 
-            user.Password.Verify(Password).Should().BeTrue();
+            Action passwordVerification = () => user.Password.Verify(Password);
+
+            passwordVerification.Should().NotThrow();
         }
     }
 }

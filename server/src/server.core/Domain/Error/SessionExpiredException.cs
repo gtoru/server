@@ -1,6 +1,6 @@
 namespace server.core.Domain.Error
 {
-    public class SessionExpiredException : DomainException
+    public class SessionExpiredException : AuthenticationException
     {
     }
 }

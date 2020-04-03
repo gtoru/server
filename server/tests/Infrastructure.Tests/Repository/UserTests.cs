@@ -61,11 +61,12 @@ namespace Infrastructure.Tests.Repository
             await _unitOfWork.SaveAsync();
 
             var foundUser = await _unitOfWork.Users.FindUserAsync(user.UserId);
+            Action passwordVerification = () => foundUser.Password.Verify(Password);
 
             foundUser.UserId.Should().Be(user.UserId);
             foundUser.Email.Address.Should().BeEquivalentTo(user.Email.Address);
             foundUser.Email.IsVerified.Should().Be(user.Email.IsVerified);
-            foundUser.Password.Verify(Password).Should().BeTrue();
+            passwordVerification.Should().NotThrow();
         }
 
         [Test]
@@ -77,9 +78,10 @@ namespace Infrastructure.Tests.Repository
             await _unitOfWork.SaveAsync();
 
             var foundUser = await _unitOfWork.Users.FindUserAsync(Email);
+            Action passwordVerification = () => foundUser.Password.Verify(Password);
 
             foundUser.Email.Address.Should().BeEquivalentTo(Email);
-            foundUser.Password.Verify(Password).Should().BeTrue();
+            passwordVerification.Should().NotThrow();
         }
 
         [Test]
