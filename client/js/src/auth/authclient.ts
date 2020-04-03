@@ -1,5 +1,5 @@
 import * as axios from "axios";
-import { AuthToken } from "./models";
+import { AuthToken, User } from "./models";
 import { Response } from "../models";
 
 export class AuthClient {
@@ -17,23 +17,17 @@ export class AuthClient {
 
     /**
      * Registers user with specified login and email
-     * @param login User email
-     * @param password User password
+     * @param user User object with user info
      * @param timeout Timeout, milliseconds
      */
     public async registerAsync(
-        login: string,
-        password: string,
+        user: User,
         timeout = 2500
     ): Promise<Response<AuthToken>> {
         try {
-            const response = await this.rest.post(
-                `/auth/v1/register?email=${login}`,
-                password,
-                {
-                    timeout: timeout,
-                }
-            );
+            const response = await this.rest.post("/auth/v1/register", user, {
+                timeout: timeout,
+            });
 
             return new Response<AuthToken>(
                 response.status,
