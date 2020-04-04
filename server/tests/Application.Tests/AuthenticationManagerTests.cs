@@ -1,8 +1,6 @@
 using System;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.VisualBasic;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
@@ -20,11 +18,6 @@ namespace Application.Tests
     [TestFixture]
     public class AuthenticationManagerTests
     {
-        private const string Email = "foo@bar.baz";
-        private const string Password = "qwerty";
-
-        private IUnitOfWork _unitOfWork;
-
         [SetUp]
         public void SetUp()
         {
@@ -33,75 +26,10 @@ namespace Application.Tests
             _unitOfWork.Users.Returns(Substitute.For<IUserRepository>());
         }
 
-        [Test]
-        public async Task Should_call_add_user_when_registering()
-        {
-            var user = User.CreateNew(Email, Password);
-            _unitOfWork.Users.AddUserAsync(Arg.Is(user)).Returns(Task.CompletedTask);
+        private const string Email = "foo@bar.baz";
+        private const string Password = "qwerty";
 
-            await AuthenticationManager.RegisterUserAsync(_unitOfWork, Email, Password);
-            await _unitOfWork.Users
-                .Received(1)
-                .AddUserAsync(Arg.Is<User>(u => u.Email.Address == Email));
-        }
-
-        [Test]
-        public async Task Should_search_for_session_on_authentication()
-        {
-            var session = Session.CreateNew(Guid.NewGuid());
-            _unitOfWork.Sessions.FindSessionAsync(session.SessionId).Returns(session);
-
-            await AuthenticationManager.CheckSessionAsync(_unitOfWork, session.SessionId);
-
-            await _unitOfWork.Sessions
-                .Received(1)
-                .FindSessionAsync(Arg.Is(session.SessionId));
-        }
-
-        [Test]
-        public async Task Should_prolongate_found_session()
-        {
-            var session = Session.CreateNew(Guid.NewGuid());
-            var validThrough = session.ValidThrough;
-
-            _unitOfWork.Sessions.FindSessionAsync(session.SessionId).Returns(session);
-
-            await AuthenticationManager.CheckSessionAsync(_unitOfWork, session.SessionId);
-
-            session.ValidThrough.Should().BeAfter(validThrough);
-        }
-
-        [Test]
-        public void Should_check_if_session_is_valid()
-        {
-            var timeProvider = Substitute.For<ITimeProvider>();
-            timeProvider.GetCurrent().Returns(new DateTime(2000, 01, 01));
-
-            var session = Session.CreateNew(Guid.NewGuid(), timeProvider);
-            timeProvider.GetCurrent().Returns(new DateTime(2010, 01, 01));
-
-            _unitOfWork.Sessions.FindSessionAsync(session.SessionId).Returns(session);
-
-            Func<Task> sessionCheck = async () => await AuthenticationManager.CheckSessionAsync(_unitOfWork, session.SessionId);
-
-            sessionCheck.Should().Throw<SessionExpiredException>();
-        }
-
-        [Test]
-        public async Task Should_search_for_user_before_authentication()
-        {
-            var user = User.CreateNew(Email, Password);
-            var session = Session.CreateNew(user.UserId);
-
-            _unitOfWork.Users.FindUserAsync(Arg.Is(user.Email.Address)).Returns(user);
-            _unitOfWork.Sessions.FindSessionByUserAsync(Arg.Is(user.UserId)).Returns(session);
-
-            await AuthenticationManager.AuthenticateAsync(_unitOfWork, Email, Password);
-
-            await _unitOfWork.Users
-                .Received(1)
-                .FindUserAsync(Email);
-        }
+        private IUnitOfWork _unitOfWork;
 
         [Test]
         public async Task Shoud_return_found_session()
@@ -118,6 +46,35 @@ namespace Application.Tests
         }
 
         [Test]
+        public async Task Should_call_add_user_when_registering()
+        {
+            var user = User.CreateNew(Email, Password);
+            _unitOfWork.Users.AddUserAsync(Arg.Is(user)).Returns(Task.CompletedTask);
+
+            await AuthenticationManager.RegisterUserAsync(_unitOfWork, Email, Password);
+            await _unitOfWork.Users
+                .Received(1)
+                .AddUserAsync(Arg.Is<User>(u => u.Email.Address == Email));
+        }
+
+        [Test]
+        public void Should_check_if_session_is_valid()
+        {
+            var timeProvider = Substitute.For<ITimeProvider>();
+            timeProvider.GetCurrent().Returns(new DateTime(2000, 01, 01));
+
+            var session = Session.CreateNew(Guid.NewGuid(), timeProvider);
+            timeProvider.GetCurrent().Returns(new DateTime(2010, 01, 01));
+
+            _unitOfWork.Sessions.FindSessionAsync(session.SessionId).Returns(session);
+
+            Func<Task> sessionCheck = async () =>
+                await AuthenticationManager.CheckSessionAsync(_unitOfWork, session.SessionId);
+
+            sessionCheck.Should().Throw<SessionExpiredException>();
+        }
+
+        [Test]
         public async Task Should_create_new_session_if_session_not_found()
         {
             var user = User.CreateNew(Email, Password);
@@ -131,6 +88,48 @@ namespace Application.Tests
             await _unitOfWork.Sessions
                 .Received(1)
                 .AddSessionAsync(Arg.Any<Session>());
+        }
+
+        [Test]
+        public async Task Should_prolongate_found_session()
+        {
+            var session = Session.CreateNew(Guid.NewGuid());
+            var validThrough = session.ValidThrough;
+
+            _unitOfWork.Sessions.FindSessionAsync(session.SessionId).Returns(session);
+
+            await AuthenticationManager.CheckSessionAsync(_unitOfWork, session.SessionId);
+
+            session.ValidThrough.Should().BeAfter(validThrough);
+        }
+
+        [Test]
+        public async Task Should_search_for_session_on_authentication()
+        {
+            var session = Session.CreateNew(Guid.NewGuid());
+            _unitOfWork.Sessions.FindSessionAsync(session.SessionId).Returns(session);
+
+            await AuthenticationManager.CheckSessionAsync(_unitOfWork, session.SessionId);
+
+            await _unitOfWork.Sessions
+                .Received(1)
+                .FindSessionAsync(Arg.Is(session.SessionId));
+        }
+
+        [Test]
+        public async Task Should_search_for_user_before_authentication()
+        {
+            var user = User.CreateNew(Email, Password);
+            var session = Session.CreateNew(user.UserId);
+
+            _unitOfWork.Users.FindUserAsync(Arg.Is(user.Email.Address)).Returns(user);
+            _unitOfWork.Sessions.FindSessionByUserAsync(Arg.Is(user.UserId)).Returns(session);
+
+            await AuthenticationManager.AuthenticateAsync(_unitOfWork, Email, Password);
+
+            await _unitOfWork.Users
+                .Received(1)
+                .FindUserAsync(Email);
         }
     }
 }
