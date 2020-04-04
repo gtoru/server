@@ -4,6 +4,7 @@ using server.core.Domain.Error;
 using server.core.Domain.Misc;
 
 [assembly: InternalsVisibleTo("Domain.Tests")]
+[assembly: InternalsVisibleTo("Application.Tests")]
 
 namespace server.core.Domain.Authentication
 {
@@ -29,7 +30,7 @@ namespace server.core.Domain.Authentication
         {
             _timeProvider = timeProvider ?? new UtcTimeProvider();
             SessionId = Guid.NewGuid();
-            ValidThrough = DateTime.UtcNow + ExpirationTime;
+            ValidThrough = _timeProvider.GetCurrent() + ExpirationTime;
             UserId = userId;
         }
 
