@@ -4,5 +4,11 @@
   ],
   "version": "independent",
   "npmClient": "yarn",
-  "useWroskapces": true
+  "useWroskapces": true,
+  "command": {
+    "publish": {
+      "conventionalCommits": true,
+      "yes": true
+    }
+  }
 }
