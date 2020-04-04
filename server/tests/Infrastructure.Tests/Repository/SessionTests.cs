@@ -69,6 +69,24 @@ namespace Infrastructure.Tests.Repository
         }
 
         [Test]
+        public async Task Should_increase_session_duration()
+        {
+            var userId = Guid.NewGuid();
+            var session = Session.CreateNew(userId);
+            var validThrough = session.ValidThrough;
+
+            await _unitOfWork.Sessions.AddSessionAsync(session);
+            await _unitOfWork.SaveAsync();
+
+            await _unitOfWork.Sessions.PatchSessionAsync(session.SessionId, s => s.Prolongate());
+            await _unitOfWork.SaveAsync();
+
+            var foundSession = await _unitOfWork.Sessions.FindSessionAsync(session.SessionId);
+
+            foundSession.ValidThrough.Should().BeAfter(validThrough);
+        }
+
+        [Test]
         public async Task Should_not_throw_on_existing_user_search()
         {
             var session = Session.CreateNew(Guid.NewGuid());
@@ -115,6 +133,16 @@ namespace Infrastructure.Tests.Repository
             Func<Task> sessionCreation = async () => await _unitOfWork.Sessions.AddSessionAsync(secondSession);
 
             sessionCreation.Should().Throw<SessionAlreadyExistsException>();
+        }
+
+        [Test]
+        public void Should_throw_when_trying_to_patch_non_existent_session()
+        {
+            var sessionId = Guid.NewGuid();
+
+            Func<Task> patch = async () => await _unitOfWork.Sessions.PatchSessionAsync(sessionId, s => s.Prolongate());
+
+            patch.Should().Throw<SessionNotFoundException>();
         }
     }
 }
