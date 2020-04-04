@@ -1,6 +1,6 @@
 import * as axios from "axios";
 import { AuthToken, User, Password, Email } from "./models";
-import { Response } from "../models";
+import { Response } from "../common/models";
 
 export class AuthClient {
     private rest: axios.AxiosInstance;

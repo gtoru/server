@@ -1,3 +1,10 @@
+.devcontainer
 tsconfig.json
+tsconfig.build.json
 src
 *.spec*
+.eslintignore
+.eslintrc.js
+.gitignore
+.prettierrc
+.npmignore

@@ -1,6 +1,6 @@
 {
   "name": "@gtoru/js-client",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {
@@ -39,8 +39,8 @@
     "axios": "^0.19.2"
   },
   "scripts": {
-    "build": "./node_modules/.bin/tsc -p tsconfig.build.json",
-    "test": "./node_modules/.bin/jest",
-    "lint": "./node_modules/.bin/eslint src/**/*.ts"
+    "build": "tsc -p tsconfig.json",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts"
   }
 }

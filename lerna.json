@@ -1,0 +1,8 @@
+{
+  "packages": [
+    "client/js"
+  ],
+  "version": "independent",
+  "npmClient": "yarn",
+  "useWroskapces": true
+}
