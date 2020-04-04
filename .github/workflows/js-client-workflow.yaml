@@ -52,6 +52,6 @@ jobs:
         with:
           registry-url: "https://npm.pkg.github.com"
           scope: "@gtoru"
-      - run: lerna publish
+      - run: yarn lerna publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
