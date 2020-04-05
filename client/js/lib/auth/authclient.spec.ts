@@ -4,8 +4,10 @@ import { AuthToken, User } from "./models";
 
 let client: AuthClient;
 const baseUrl = "http://localhost";
-const registrationUrl = "/auth/v1/user/register";
-const authenticationUrl = "/auth/v1/user/authenticate";
+
+const registrationUrl = "/api/auth/v1/user/register";
+const authenticationUrl = "/api/auth/v1/user/authenticate";
+const sessionInfoUrl = "/api/auth/v1/sessions/my";
 
 const token: AuthToken = "1234";
 
@@ -28,70 +30,77 @@ afterEach(() => {
     nock.activate();
 });
 
-test("registers user", async () => {
-    const scope = nock(baseUrl)
-        .post(registrationUrl, JSON.stringify(user))
-        .reply(200, token);
+describe("registration", () => {
+    test("registers user", async () => {
+        const scope = nock(baseUrl)
+            .post(registrationUrl, JSON.stringify(user))
+            .reply(200, token);
 
-    const response = await client.registerAsync(user);
+        const response = await client.registerAsync(user);
 
-    expect(response.responseCode).toBe(200);
-    expect(response.responseData).toBe(token);
+        expect(response.responseCode).toBe(200);
+        expect(response.responseData).toBeUndefined();
 
-    scope.done();
+        scope.done();
+    });
+
+    test("handles bad request on empty user", async () => {
+        const emptyPasswordError = "password can not be empty";
+        const scope = nock(baseUrl)
+            .post(registrationUrl, {})
+            .reply(400, emptyPasswordError);
+
+        const response = await client.registerAsync(new User());
+
+        expect(response.responseCode).toBe(400);
+        expect(response.responseData).toBeUndefined();
+        expect(response.errorInfo).toBe(emptyPasswordError);
+
+        scope.done();
+    });
 });
 
-test("handles bad request on empty user", async () => {
-    const emptyPasswordError = "password can not be empty";
-    const scope = nock(baseUrl)
-        .post(registrationUrl, {})
-        .reply(400, emptyPasswordError);
+describe("authentication", () => {
+    test("authenticates user", async () => {
+        const scope = nock(baseUrl)
+            .post(
+                authenticationUrl,
+                JSON.stringify({
+                    email: user.email,
+                    password: user.password,
+                })
+            )
+            .reply(200, token);
 
-    const response = await client.registerAsync(new User());
+        const response = await client.authenticateAsync(
+            user.email,
+            user.password
+        );
 
-    expect(response.responseCode).toBe(400);
-    expect(response.responseData).toBeUndefined();
-    expect(response.errorInfo).toBe(emptyPasswordError);
+        expect(response.responseCode).toBe(200);
+        expect(response.responseData).toBe(token);
 
-    scope.done();
-});
+        scope.done();
+    });
 
-test("authenticates user", async () => {
-    const scope = nock(baseUrl)
-        .post(
-            authenticationUrl,
-            JSON.stringify({
-                email: user.email,
-                password: user.password,
-            })
-        )
-        .reply(200, token);
+    test("should handle authentication error", async () => {
+        const badAuth = "bad password or login";
+        const scope = nock(baseUrl)
+            .post(
+                authenticationUrl,
+                JSON.stringify({
+                    email: user.email,
+                    password: "",
+                })
+            )
+            .reply(401, badAuth);
 
-    const response = await client.authenticateAsync(user.email, user.password);
+        const response = await client.authenticateAsync(user.email, "");
 
-    expect(response.responseCode).toBe(200);
-    expect(response.responseData).toBe(token);
+        expect(response.responseCode).toBe(401);
+        expect(response.errorInfo).toBe(badAuth);
+        expect(response.responseData).toBeUndefined();
 
-    scope.done();
-});
-
-test("should handle authentication error", async () => {
-    const badAuth = "bad password or login";
-    const scope = nock(baseUrl)
-        .post(
-            authenticationUrl,
-            JSON.stringify({
-                email: user.email,
-                password: "",
-            })
-        )
-        .reply(401, badAuth);
-
-    const response = await client.authenticateAsync(user.email, "");
-
-    expect(response.responseCode).toBe(401);
-    expect(response.errorInfo).toBe(badAuth);
-    expect(response.responseData).toBeUndefined();
-
-    scope.done();
+        scope.done();
+    });
 });

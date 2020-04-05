@@ -1,5 +1,5 @@
 import * as axios from "axios";
-import { AuthToken, User, Password, Email } from "./models";
+import { AuthToken, User, Password, Email, SessionInfo } from "./models";
 import { Response } from "../common/models";
 
 export class AuthClient {
@@ -23,27 +23,12 @@ export class AuthClient {
     public async registerAsync(
         user: User,
         timeout = 2500
-    ): Promise<Response<AuthToken>> {
-        try {
-            const response = await this.rest.post(
-                "/auth/v1/user/register",
-                user,
-                {
-                    timeout: timeout,
-                }
-            );
-
-            return new Response<AuthToken>(
-                response.status,
-                String(response.data)
-            );
-        } catch (err) {
-            const error: axios.AxiosError = err;
-            const errorInfo = String(error.response.data);
-            const statusCode: number = error.response.status;
-
-            return new Response<AuthToken>(statusCode, undefined, errorInfo);
-        }
+    ): Promise<Response<void>> {
+        const request = (): Promise<axios.AxiosResponse<void>> =>
+            this.rest.post("api/auth/v1/user/register", user, {
+                timeout: timeout,
+            });
+        return await this.tryMakeRequestAsync(request, () => undefined);
     }
 
     /**
@@ -58,9 +43,9 @@ export class AuthClient {
         password: Password,
         timeout = 2500
     ): Promise<Response<AuthToken>> {
-        try {
-            const response = await this.rest.post(
-                "auth/v1/user/authenticate",
+        const request = (): Promise<axios.AxiosResponse<AuthToken>> =>
+            this.rest.post(
+                "api/auth/v1/user/authenticate",
                 {
                     email: email,
                     password: password,
@@ -69,17 +54,40 @@ export class AuthClient {
                     timeout: timeout,
                 }
             );
+        return await this.tryMakeRequestAsync(request, (data) => String(data));
+    }
 
-            return new Response<AuthToken>(
+    public async getSessionInfoAsync(
+        authToken: AuthToken,
+        timeout = 2500
+    ): Promise<Response<SessionInfo>> {
+        const request = (): Promise<axios.AxiosResponse<SessionInfo>> =>
+            this.rest.get("api/auth/v1/sessions/my", {
+                timeout: timeout,
+                headers: {
+                    Authorization: "Bearer " + authToken,
+                },
+            });
+
+        return await this.tryMakeRequestAsync(request, (data) => data);
+    }
+
+    private async tryMakeRequestAsync<TResponse>(
+        request: () => Promise<axios.AxiosResponse<TResponse>>,
+        responseExtractor: (data) => TResponse
+    ): Promise<Response<TResponse>> {
+        try {
+            const response = await request();
+            return new Response<TResponse>(
                 response.status,
-                String(response.data)
+                responseExtractor(response.data)
             );
         } catch (err) {
             const error: axios.AxiosError = err;
             const errorInfo = String(error.response.data);
             const statusCode: number = error.response.status;
 
-            return new Response<AuthToken>(statusCode, undefined, errorInfo);
+            return new Response<TResponse>(statusCode, undefined, errorInfo);
         }
     }
 }
