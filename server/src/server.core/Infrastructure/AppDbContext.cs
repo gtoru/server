@@ -31,12 +31,20 @@ namespace server.core.Infrastructure
                 .OwnsOne(m => m.Email,
                     builder =>
                     {
-                        builder.Property(m => m.Address);
+                        builder.HasIndex(m => m.Address);
                         builder.Property(m => m.IsVerified);
                     });
 
-            // entityTypeBuilder
-            //     .HasAlternateKey("Email");
+            entityTypeBuilder
+                .OwnsOne(m => m.PersonalInfo,
+                    builder =>
+                    {
+                        builder.Property(m => m.Address);
+                        builder.Property(m => m.Birthday);
+                        builder.Property(m => m.Employer);
+                        builder.Property(m => m.Name);
+                        builder.Property(m => m.Occupation);
+                    });
 
             entityTypeBuilder
                 .OwnsOne(m => m.Password);

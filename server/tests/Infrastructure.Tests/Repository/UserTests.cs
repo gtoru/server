@@ -24,6 +24,13 @@ namespace Infrastructure.Tests.Repository
                 .Options;
 
             _unitOfWork = new UnitOfWork(new AppDbContext(options));
+
+            _personalInfo = new PersonalInfo(
+                "John Doe",
+                new DateTime(1970, 01, 01),
+                "Over the Rainbow",
+                "Believer",
+                "Monsters inc.");
         }
 
         [TearDown]
@@ -37,12 +44,13 @@ namespace Infrastructure.Tests.Repository
 
         private SqliteConnection _connection;
         private IUnitOfWork _unitOfWork;
+        private PersonalInfo _personalInfo;
 
         [Test]
         public async Task Should_fail_to_add_existing_email()
         {
-            var firstUser = User.CreateNew(Email, Password);
-            var secondUser = User.CreateNew(Email, Password);
+            var firstUser = User.CreateNew(Email, Password, _personalInfo);
+            var secondUser = User.CreateNew(Email, Password, _personalInfo);
 
             await _unitOfWork.Users.AddUserAsync(firstUser);
             await _unitOfWork.SaveAsync();
@@ -55,7 +63,7 @@ namespace Infrastructure.Tests.Repository
         [Test]
         public async Task Should_find_existing_user()
         {
-            var user = User.CreateNew(Email, Password);
+            var user = User.CreateNew(Email, Password, _personalInfo);
 
             await _unitOfWork.Users.AddUserAsync(user);
             await _unitOfWork.SaveAsync();
@@ -66,13 +74,14 @@ namespace Infrastructure.Tests.Repository
             foundUser.UserId.Should().Be(user.UserId);
             foundUser.Email.Address.Should().BeEquivalentTo(user.Email.Address);
             foundUser.Email.IsVerified.Should().Be(user.Email.IsVerified);
+            foundUser.PersonalInfo.Should().BeEquivalentTo(_personalInfo);
             passwordVerification.Should().NotThrow();
         }
 
         [Test]
         public async Task Should_find_user_by_email()
         {
-            var user = User.CreateNew(Email, Password);
+            var user = User.CreateNew(Email, Password, _personalInfo);
 
             await _unitOfWork.Users.AddUserAsync(user);
             await _unitOfWork.SaveAsync();
@@ -87,7 +96,7 @@ namespace Infrastructure.Tests.Repository
         [Test]
         public async Task Should_not_throw_on_existing_user_search()
         {
-            var user = User.CreateNew(Email, Password);
+            var user = User.CreateNew(Email, Password, _personalInfo);
 
             await _unitOfWork.Users.AddUserAsync(user);
             await _unitOfWork.SaveAsync();

@@ -9,9 +9,10 @@ namespace server.core.Application
 {
     public static class AuthenticationManager
     {
-        public static async Task<User> RegisterUserAsync(IUnitOfWork unitOfWork, string email, string password)
+        public static async Task<User> RegisterUserAsync(IUnitOfWork unitOfWork, string email, string password,
+            PersonalInfo personalInfo)
         {
-            var user = User.CreateNew(email, password);
+            var user = User.CreateNew(email, password, personalInfo);
 
             await unitOfWork.Users.AddUserAsync(user);
 

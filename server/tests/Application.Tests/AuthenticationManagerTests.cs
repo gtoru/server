@@ -24,17 +24,25 @@ namespace Application.Tests
             _unitOfWork = Substitute.For<IUnitOfWork>();
             _unitOfWork.Sessions.Returns(Substitute.For<ISessionRepository>());
             _unitOfWork.Users.Returns(Substitute.For<IUserRepository>());
+
+            _personalInfo = new PersonalInfo(
+                "John Doe",
+                new DateTime(1970, 01, 01),
+                "Over the Rainbow",
+                "Believer",
+                "Monsters inc.");
         }
 
         private const string Email = "foo@bar.baz";
         private const string Password = "qwerty";
 
         private IUnitOfWork _unitOfWork;
+        private PersonalInfo _personalInfo;
 
         [Test]
         public async Task Shoud_return_found_session()
         {
-            var user = User.CreateNew(Email, Password);
+            var user = User.CreateNew(Email, Password, _personalInfo);
             var session = Session.CreateNew(user.UserId);
 
             _unitOfWork.Users.FindUserAsync(Arg.Is(user.Email.Address)).Returns(user);
@@ -48,10 +56,10 @@ namespace Application.Tests
         [Test]
         public async Task Should_call_add_user_when_registering()
         {
-            var user = User.CreateNew(Email, Password);
+            var user = User.CreateNew(Email, Password, _personalInfo);
             _unitOfWork.Users.AddUserAsync(Arg.Is(user)).Returns(Task.CompletedTask);
 
-            await AuthenticationManager.RegisterUserAsync(_unitOfWork, Email, Password);
+            await AuthenticationManager.RegisterUserAsync(_unitOfWork, Email, Password, _personalInfo);
             await _unitOfWork.Users
                 .Received(1)
                 .AddUserAsync(Arg.Is<User>(u => u.Email.Address == Email));
@@ -77,7 +85,7 @@ namespace Application.Tests
         [Test]
         public async Task Should_create_new_session_if_session_not_found()
         {
-            var user = User.CreateNew(Email, Password);
+            var user = User.CreateNew(Email, Password, _personalInfo);
 
             _unitOfWork.Users.FindUserAsync(Arg.Is(user.Email.Address)).Returns(user);
             _unitOfWork.Sessions.FindSessionByUserAsync(Arg.Is(user.UserId)).Throws(new SessionNotFoundException());
@@ -119,7 +127,7 @@ namespace Application.Tests
         [Test]
         public async Task Should_search_for_user_before_authentication()
         {
-            var user = User.CreateNew(Email, Password);
+            var user = User.CreateNew(Email, Password, _personalInfo);
             var session = Session.CreateNew(user.UserId);
 
             _unitOfWork.Users.FindUserAsync(Arg.Is(user.Email.Address)).Returns(user);
