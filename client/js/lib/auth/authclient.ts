@@ -1,6 +1,7 @@
 import * as axios from "axios";
 import { AuthToken, User, Password, Email, SessionInfo } from "./models";
 import { Response } from "../common/models";
+import { UserDto, SessionInfoDto } from "./dto";
 
 export class AuthClient {
     private rest: axios.AxiosInstance;
@@ -25,9 +26,13 @@ export class AuthClient {
         timeout = 2500
     ): Promise<Response<void>> {
         const request = (): Promise<axios.AxiosResponse<void>> =>
-            this.rest.post("api/auth/v1/user/register", user, {
-                timeout: timeout,
-            });
+            this.rest.post(
+                "api/auth/v1/user/register",
+                UserDto.fromModel(user),
+                {
+                    timeout: timeout,
+                }
+            );
         return await this.tryMakeRequestAsync(request, () => undefined);
     }
 
@@ -43,7 +48,7 @@ export class AuthClient {
         password: Password,
         timeout = 2500
     ): Promise<Response<AuthToken>> {
-        const request = (): Promise<axios.AxiosResponse<AuthToken>> =>
+        const request = (): Promise<axios.AxiosResponse<string>> =>
             this.rest.post(
                 "api/auth/v1/user/authenticate",
                 {
@@ -61,7 +66,7 @@ export class AuthClient {
         authToken: AuthToken,
         timeout = 2500
     ): Promise<Response<SessionInfo>> {
-        const request = (): Promise<axios.AxiosResponse<SessionInfo>> =>
+        const request = (): Promise<axios.AxiosResponse<SessionInfoDto>> =>
             this.rest.get("api/auth/v1/sessions/my", {
                 timeout: timeout,
                 headers: {
@@ -69,16 +74,18 @@ export class AuthClient {
                 },
             });
 
-        return await this.tryMakeRequestAsync(request, (data) => data);
+        return await this.tryMakeRequestAsync(request, (data) =>
+            SessionInfoDto.toModel(data)
+        );
     }
 
-    private async tryMakeRequestAsync<TResponse>(
-        request: () => Promise<axios.AxiosResponse<TResponse>>,
-        responseExtractor: (data) => TResponse
-    ): Promise<Response<TResponse>> {
+    private async tryMakeRequestAsync<TDto, TResult>(
+        request: () => Promise<axios.AxiosResponse<TDto>>,
+        responseExtractor: (data: TDto) => TResult
+    ): Promise<Response<TResult>> {
         try {
             const response = await request();
-            return new Response<TResponse>(
+            return new Response<TResult>(
                 response.status,
                 responseExtractor(response.data)
             );
@@ -87,7 +94,7 @@ export class AuthClient {
             const errorInfo = String(error.response.data);
             const statusCode: number = error.response.status;
 
-            return new Response<TResponse>(statusCode, undefined, errorInfo);
+            return new Response<TResult>(statusCode, undefined, errorInfo);
         }
     }
 }

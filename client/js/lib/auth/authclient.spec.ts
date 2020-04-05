@@ -1,6 +1,7 @@
 import * as nock from "nock";
 import { AuthClient } from "./authclient";
-import { AuthToken, User } from "./models";
+import { AuthToken, User, SessionInfo, PersonalInfo } from "./models";
+import { UserDto, SessionInfoDto } from "./dto";
 
 let client: AuthClient;
 const baseUrl = "http://localhost";
@@ -11,14 +12,24 @@ const sessionInfoUrl = "/api/auth/v1/sessions/my";
 
 const token: AuthToken = "1234";
 
-const user: User = {
+const personalInfo: PersonalInfo = {
     address: "Moscow",
     birthday: new Date("1970-02-29"),
-    email: "foo@bar.baz",
     employer: "Gazprom",
     name: "John Doe",
     occupation: "Worker",
+};
+
+const user: User = {
+    email: "foo@bar.baz",
     password: "qwerty",
+    personalInfo: personalInfo,
+};
+
+const sessionInfo: SessionInfo = {
+    email: user.email,
+    userId: "1234",
+    personalInfo: personalInfo,
 };
 
 beforeAll(() => {
@@ -31,9 +42,9 @@ afterEach(() => {
 });
 
 describe("registration", () => {
-    test("registers user", async () => {
+    it("registers user", async () => {
         const scope = nock(baseUrl)
-            .post(registrationUrl, JSON.stringify(user))
+            .post(registrationUrl, JSON.stringify(UserDto.fromModel(user)))
             .reply(200, token);
 
         const response = await client.registerAsync(user);
@@ -44,10 +55,13 @@ describe("registration", () => {
         scope.done();
     });
 
-    test("handles bad request on empty user", async () => {
+    it("handles bad request on empty user", async () => {
         const emptyPasswordError = "password can not be empty";
         const scope = nock(baseUrl)
-            .post(registrationUrl, {})
+            .post(
+                registrationUrl,
+                JSON.stringify(UserDto.fromModel(new User()))
+            )
             .reply(400, emptyPasswordError);
 
         const response = await client.registerAsync(new User());
@@ -61,7 +75,7 @@ describe("registration", () => {
 });
 
 describe("authentication", () => {
-    test("authenticates user", async () => {
+    it("authenticates user", async () => {
         const scope = nock(baseUrl)
             .post(
                 authenticationUrl,
@@ -83,7 +97,7 @@ describe("authentication", () => {
         scope.done();
     });
 
-    test("should handle authentication error", async () => {
+    it("should handle authentication error", async () => {
         const badAuth = "bad password or login";
         const scope = nock(baseUrl)
             .post(
@@ -99,6 +113,40 @@ describe("authentication", () => {
 
         expect(response.responseCode).toBe(401);
         expect(response.errorInfo).toBe(badAuth);
+        expect(response.responseData).toBeUndefined();
+
+        scope.done();
+    });
+});
+
+describe("getting of session info", () => {
+    it("should parse session info response", async () => {
+        const authToken: AuthToken = "qwerty123";
+        const scope = nock(baseUrl)
+            .get(sessionInfoUrl)
+            .matchHeader("Authorization", "Bearer " + authToken)
+            .reply(200, JSON.stringify(SessionInfoDto.fromModel(sessionInfo)));
+
+        const response = await client.getSessionInfoAsync(authToken);
+
+        expect(response.responseCode).toBe(200);
+        expect(response.errorInfo).toBeUndefined();
+        expect(response.responseData).toStrictEqual(sessionInfo);
+
+        scope.done();
+    });
+
+    it("should parse error response", async () => {
+        const authToken = "123";
+        const scope = nock(baseUrl)
+            .get(sessionInfoUrl)
+            .matchHeader("Authorization", "Bearer " + authToken)
+            .reply(401, "unauthorized");
+
+        const response = await client.getSessionInfoAsync(authToken);
+
+        expect(response.responseCode).toBe(401);
+        expect(response.errorInfo).toBe("unauthorized");
         expect(response.responseData).toBeUndefined();
 
         scope.done();
