@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using server.core.Domain;
-using server.core.Domain.Authentication;
 
 namespace server.core.Infrastructure
 {
@@ -14,12 +13,9 @@ namespace server.core.Infrastructure
 
         public DbSet<User> Users { get; set; }
 
-        public DbSet<Session> Sessions { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             ConfigureUser(modelBuilder.Entity<User>());
-            ConfigureSession(modelBuilder.Entity<Session>());
         }
 
         private void ConfigureUser(EntityTypeBuilder<User> entityTypeBuilder)
@@ -47,22 +43,11 @@ namespace server.core.Infrastructure
                     });
 
             entityTypeBuilder
-                .OwnsOne(m => m.Password);
-        }
-
-        private void ConfigureSession(EntityTypeBuilder<Session> entityTypeBuilder)
-        {
-            entityTypeBuilder
-                .HasKey(m => m.SessionId);
-
-            entityTypeBuilder
-                .HasAlternateKey(m => m.UserId);
-
-            entityTypeBuilder
-                .Property(m => m.ValidThrough);
-
-            entityTypeBuilder
-                .Ignore("timeProvider");
+                .OwnsOne(m => m.Password, builder =>
+                {
+                    builder.Property(m => m.HashedPassword);
+                    builder.Property(m => m.HashAlgorithm);
+                });
         }
     }
 }

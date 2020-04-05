@@ -7,8 +7,6 @@ namespace server.core.Infrastructure
     {
         IUserRepository Users { get; }
 
-        ISessionRepository Sessions { get; }
-
         Task SaveAsync();
     }
 }

@@ -1,9 +1,6 @@
-using System;
 using System.Threading.Tasks;
 using server.core.Domain;
-using server.core.Domain.Authentication;
 using server.core.Infrastructure;
-using server.core.Infrastructure.Error;
 
 namespace server.core.Application
 {
@@ -19,33 +16,13 @@ namespace server.core.Application
             return user;
         }
 
-        public static async Task<Session> AuthenticateAsync(IUnitOfWork unitOfWork, string email, string password)
+        public static async Task<User> AuthenticateAsync(IUnitOfWork unitOfWork, string email, string password)
         {
             var user = await unitOfWork.Users.FindUserAsync(email);
 
             user.Password.Verify(password);
 
-            Session session;
-            try
-            {
-                session = await unitOfWork.Sessions.FindSessionByUserAsync(user.UserId);
-            }
-            catch (SessionNotFoundException)
-            {
-                session = Session.CreateNew(user.UserId);
-                await unitOfWork.Sessions.AddSessionAsync(session);
-            }
-
-            return session;
-        }
-
-        public static async Task CheckSessionAsync(IUnitOfWork unitOfWork, Guid sessionId)
-        {
-            var session = await unitOfWork.Sessions.FindSessionAsync(sessionId);
-
-            session.CheckSession();
-
-            session.Prolongate();
+            return user;
         }
     }
 }
