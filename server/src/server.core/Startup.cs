@@ -30,7 +30,14 @@ namespace server.core
             services.AddSingleton<IAuthenticator, JwtAuthenticator>();
             services.AddCors();
             services.AddLogging(config => { config.AddConsole(); });
-            services.AddDbContext<AppDbContext>(options => { options.UseNpgsql(""); });
+            services.AddDbContext<AppDbContext>(options =>
+            {
+                var host = Configuration["DB:Host"];
+                var database = Configuration["DB:Database"];
+                var userName = Configuration["DB:Username"];
+                var password = Configuration["DB:Password"];
+                options.UseNpgsql($"Host={host};Database={database};Username={userName};Password={password}");
+            });
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
