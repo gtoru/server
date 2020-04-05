@@ -15,7 +15,8 @@ namespace server.core.Api.Authentication
 {
     [Authorize]
     [ApiController]
-    [Route("api/auth/v1")]
+    [ApiVersion("1.0")]
+    [Route("api/auth/v{version:apiVersion}")]
     public class AuthenticationController : ControllerBase
     {
         private readonly IAuthenticator _authenticator;
