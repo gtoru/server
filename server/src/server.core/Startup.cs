@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using server.core.Api.Authentication;
 using server.core.Api.Middleware;
 using server.core.Infrastructure;
@@ -63,11 +64,29 @@ namespace server.core
                     IssuerSigningKey = new SymmetricSecurityKey(key)
                 };
             });
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "GTO API",
+                    Version = "v1"
+                });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+
+            app.UseSwagger(options =>
+            {
+                options.RouteTemplate = "docs/{documentName}/docs.json";
+            });
+            app.UseSwaggerUI(options =>
+            {
+                options.RoutePrefix = "docs";
+                options.SwaggerEndpoint("docs/v1/docs.json", "GTO API v1");
+            });
 
             app.UseRouting();
             app.UseAuthentication();
