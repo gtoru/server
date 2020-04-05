@@ -16,6 +16,19 @@ namespace Api.Tests.Authentication
     [TestFixture]
     public class AuthenticationTest
     {
+        [SetUp]
+        public void SetUp()
+        {
+            _factory = new InMemoryWebApplicationFactory();
+            Client = _factory.CreateClient();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _factory.Dispose();
+        }
+
         private const string Email = "foo@bar.baz";
         private const string Password = "qwerty";
         private const string BaseRoute = "api/auth/v1";
@@ -30,17 +43,84 @@ namespace Api.Tests.Authentication
         private const string SessionInfoRoute = BaseRoute + "/sessions/my";
         private HttpClient Client { get; set; }
 
-        [SetUp]
-        public void SetUp()
+        private async Task<HttpResponseMessage> RegisterUserAsync()
         {
-            _factory = new InMemoryWebApplicationFactory();
-            Client = _factory.CreateClient();
+            var registrationRequest = new RegistrationRequest
+            {
+                Email = Email,
+                Password = Password,
+                Address = Address,
+                Birthday = _birthDay,
+                Employer = Employer,
+                Occupation = Occupation,
+                Name = Name
+            };
+
+            return await Client.PostAsync(
+                RegistrationRoute,
+                registrationRequest.ToJsonContent());
         }
 
-        [TearDown]
-        public void TearDown()
+        private async Task<string> RegisterAndAuthenticateAsync()
         {
-            _factory.Dispose();
+            await RegisterUserAsync();
+
+            var authenticationRequest = new AuthenticationRequest
+            {
+                Email = Email,
+                Password = Password
+            };
+
+            var authenticationResult = await Client.PostAsync(
+                AuthenticationRoute,
+                authenticationRequest.ToJsonContent());
+
+            return await authenticationResult.Content.ReadAsStringAsync();
+        }
+
+        [Test]
+        public async Task Should_authenticate_registered_user()
+        {
+            await RegisterUserAsync();
+
+            var authenticationRequest = new AuthenticationRequest
+            {
+                Email = Email,
+                Password = Password
+            };
+
+            var authenticationResult = await Client.PostAsync(
+                AuthenticationRoute,
+                authenticationRequest.ToJsonContent());
+
+            authenticationResult.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Test]
+        public async Task Should_get_session_info()
+        {
+            var token = await RegisterAndAuthenticateAsync();
+            Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                "Bearer",
+                token);
+
+            var sessionResponse = await Client.GetAsync(SessionInfoRoute);
+
+            sessionResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var sessionInfo =
+                JsonSerializer.Deserialize<SessionInfo>(await sessionResponse.Content.ReadAsStringAsync(),
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+            sessionInfo.Email.Should().BeEquivalentTo(Email);
+            sessionInfo.PersonalInfo.Address.Should().BeEquivalentTo(Address);
+            sessionInfo.PersonalInfo.Birthday.Should().Be(_birthDay);
+            sessionInfo.PersonalInfo.Employer.Should().Be(Employer);
+            sessionInfo.PersonalInfo.Name.Should().Be(Name);
+            sessionInfo.PersonalInfo.Occupation.Should().Be(Occupation);
         }
 
         [Test]
@@ -96,85 +176,6 @@ namespace Api.Tests.Authentication
             var registrationResult = await RegisterUserAsync();
 
             registrationResult.StatusCode.Should().Be(HttpStatusCode.OK);
-        }
-
-        [Test]
-        public async Task Should_authenticate_registered_user()
-        {
-            await RegisterUserAsync();
-
-            var authenticationRequest = new AuthenticationRequest
-            {
-                Email = Email,
-                Password = Password
-            };
-
-            var authenticationResult = await Client.PostAsync(
-                AuthenticationRoute,
-                authenticationRequest.ToJsonContent());
-
-            authenticationResult.StatusCode.Should().Be(HttpStatusCode.OK);
-        }
-
-        [Test]
-        public async Task Should_get_session_info()
-        {
-            var token = await RegisterAndAuthenticateAsync();
-            Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
-                "Bearer",
-                token);
-
-            var sessionResponse = await Client.GetAsync(SessionInfoRoute);
-
-            sessionResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var sessionInfo =
-                JsonSerializer.Deserialize<SessionInfo>(await sessionResponse.Content.ReadAsStringAsync(), new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-
-            sessionInfo.Email.Should().BeEquivalentTo(Email);
-            sessionInfo.PersonalInfo.Address.Should().BeEquivalentTo(Address);
-            sessionInfo.PersonalInfo.Birthday.Should().Be(_birthDay);
-            sessionInfo.PersonalInfo.Employer.Should().Be(Employer);
-            sessionInfo.PersonalInfo.Name.Should().Be(Name);
-            sessionInfo.PersonalInfo.Occupation.Should().Be(Occupation);
-        }
-
-        private async Task<HttpResponseMessage> RegisterUserAsync()
-        {
-            var registrationRequest = new RegistrationRequest
-            {
-                Email = Email,
-                Password = Password,
-                Address = Address,
-                Birthday = _birthDay,
-                Employer = Employer,
-                Occupation = Occupation,
-                Name = Name
-            };
-
-            return await Client.PostAsync(
-                RegistrationRoute,
-                registrationRequest.ToJsonContent());
-        }
-
-        private async Task<string> RegisterAndAuthenticateAsync()
-        {
-            await RegisterUserAsync();
-
-            var authenticationRequest = new AuthenticationRequest
-            {
-                Email = Email,
-                Password = Password
-            };
-
-            var authenticationResult = await Client.PostAsync(
-                AuthenticationRoute,
-                authenticationRequest.ToJsonContent());
-
-            return await authenticationResult.Content.ReadAsStringAsync();
         }
     }
 }

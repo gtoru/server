@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using server.core.Domain;
 using server.core.Infrastructure;
 
 namespace server.core.Api.Authentication

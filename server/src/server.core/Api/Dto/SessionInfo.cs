@@ -1,6 +1,5 @@
 using System;
 using server.core.Domain;
-using server.core.Domain.Authentication;
 
 namespace server.core.Api.Dto
 {
