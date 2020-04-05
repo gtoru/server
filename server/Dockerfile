@@ -7,6 +7,7 @@ COPY src/server.core/server.core.csproj src/server.core/server.core.csproj
 COPY tests/Domain.Tests/Domain.Tests.csproj tests/Domain.Tests/Domain.Tests.csproj
 COPY tests/Infrastructure.Tests/Infrastructure.Tests.csproj tests/Infrastructure.Tests/Infrastructure.Tests.csproj
 COPY tests/Application.Tests/Application.Tests.csproj tests/Application.Tests/Application.Tests.csproj
+COPY tests/Api.Tests/Api.Tests.csproj tests/Api.Tests/Api.Tests.csproj
 
 RUN dotnet restore
 
