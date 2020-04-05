@@ -17,13 +17,9 @@ export type Occupation = string;
 export type Employer = string;
 
 export class User {
-    public name: Name;
     public email: Email;
     public password: Password;
-    public birthday: Birthday;
-    public address: Address;
-    public occupation: Occupation;
-    public employer: Employer;
+    public personalInfo: PersonalInfo;
 }
 
 export class PersonalInfo {
