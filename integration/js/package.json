@@ -10,7 +10,8 @@
     ]
   },
   "scripts": {
-    "test": "jest --env node"
+    "test": "yarn test:auth",
+    "test:auth": "jest --env node --config jest.auth.config.js"
   },
   "devDependencies": {
     "@types/jest": "^25.2.1",
