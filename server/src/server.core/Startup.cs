@@ -115,9 +115,10 @@ namespace server.core
             services.AddSwaggerGenNewtonsoftSupport();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext dbContext)
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            dbContext.Database.Migrate();
 
             app.UseSwagger(options => { options.RouteTemplate = "docs/{documentName}/docs.json"; });
             app.UseSwaggerUI(options =>

@@ -23,7 +23,10 @@ namespace Infrastructure.Tests.Repository
                 .UseSqlite(_connection)
                 .Options;
 
-            _unitOfWork = new UnitOfWork(new AppDbContext(options));
+            var context = new AppDbContext(options);
+            context.Database.Migrate();
+
+            _unitOfWork = new UnitOfWork(context);
 
             _personalInfo = new PersonalInfo(
                 "John Doe",

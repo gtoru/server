@@ -12,7 +12,6 @@ namespace server.core.Infrastructure
         public UnitOfWork(AppDbContext dbContext)
         {
             _dbContext = dbContext;
-            dbContext.Database.EnsureCreated();
         }
 
         public IUserRepository Users
