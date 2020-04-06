@@ -55,7 +55,8 @@ namespace server.core
                 var database = Configuration["DB:Database"];
                 var userName = Configuration["DB:Username"];
                 var password = Configuration["DB:Password"];
-                options.UseNpgsql($"Host={host};Port={port};Database={database};Username={userName};Password={password}");
+                options.UseNpgsql(
+                    $"Host={host};Port={port};Database={database};Username={userName};Password={password}");
             });
             services.AddAuthentication(options =>
             {
@@ -80,7 +81,7 @@ namespace server.core
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "GTO API",
-                    Version = "v1.0"
+                    Version = "v1",
                 });
             });
         }
@@ -96,7 +97,7 @@ namespace server.core
             app.UseSwaggerUI(options =>
             {
                 options.RoutePrefix = "docs";
-                options.SwaggerEndpoint("docs/v1/docs.json", "GTO API v1");
+                options.SwaggerEndpoint("/docs/v1/docs.json", "GTO API v1");
             });
 
             app.UseRouting();
