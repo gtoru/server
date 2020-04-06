@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Converters;
 using server.core.Api.Authentication;
 using server.core.Api.Middleware;
 using server.core.Infrastructure;
@@ -27,7 +29,15 @@ namespace server.core
 
         public virtual void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services
+                .AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.Converters.Add(new IsoDateTimeConverter
+                    {
+                        DateTimeStyles = DateTimeStyles.AdjustToUniversal
+                    });
+                });
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<IAuthenticator, JwtAuthenticator>();
             services.AddCors();
