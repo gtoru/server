@@ -49,3 +49,20 @@ jobs:
         run: docker build -t docker.pkg.github.com/gtoru/server/server --target deploy server/
       - name: Publish Latest Image
         run: docker push docker.pkg.github.com/gtoru/server/server
+
+  update_job:
+    runs-on: ubuntu-latest
+    name: Perform DEV cluster update
+    needs: [push_image]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure k8s
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: 'mkdir ~/.kube && echo "$KUBECONFIG" > ~/.kube/config'
+      - name: Set gto-dev namespace for kubectl
+        run: kubectl config set-context --current --namespace=gto-dev
+      - name: Add Github-token as secret
+        run: kubectl get secrets regcred || kubectl create secret docker-registry regcred --namespace=gto-dev --docker-server=docker.pkg.github.com --docker-username=gtoru --docker-password=${{ secrets.GITHUB_TOKEN }}
+      - name: Rollout update
+        run: kubectl rollout restart deployment/gto-back-deployment
