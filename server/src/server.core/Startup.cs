@@ -41,10 +41,11 @@ namespace server.core
             services.AddDbContext<AppDbContext>(options =>
             {
                 var host = Configuration["DB:Host"];
+                var port = Configuration["DB:Port"];
                 var database = Configuration["DB:Database"];
                 var userName = Configuration["DB:Username"];
                 var password = Configuration["DB:Password"];
-                options.UseNpgsql($"Host={host};Database={database};Username={userName};Password={password}");
+                options.UseNpgsql($"Host={host};Port={port};Database={database};Username={userName};Password={password}");
             });
             services.AddAuthentication(options =>
             {
@@ -69,7 +70,7 @@ namespace server.core
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "GTO API",
-                    Version = "v1"
+                    Version = "v1.0"
                 });
             });
         }
