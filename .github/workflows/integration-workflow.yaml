@@ -4,8 +4,9 @@ on:
   push:
     paths:
       - ".github/workflows/integration-workflow.yaml"
-      - "client/*"
-      - "server/*"
+      - "client/**/*"
+      - "server/**/*"
+      - "integration/**/*"
 
 jobs:
   integration_job:
