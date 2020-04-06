@@ -1,8 +1,8 @@
 import { AuthClient, User, PersonalInfo, AuthToken, SessionInfo } from "../../../client/js/lib/index";
 
 describe("authentication", () => {
-    const email = "admin";
-    const password = "admin";
+    const email = "foo@bar.baz";
+    const password = "qwerty";
 
     const personalInfo: PersonalInfo = {
         address: "Bakers st.",
