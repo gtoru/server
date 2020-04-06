@@ -133,6 +133,7 @@ namespace server.core
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
             dbContext.Database.Migrate();
+
             CreateAdminUser(unitOfWork);
 
             app.UseSwagger(options => { options.RouteTemplate = "docs/{documentName}/docs.json"; });
