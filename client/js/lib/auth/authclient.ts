@@ -90,10 +90,9 @@ export class AuthClient {
                 responseExtractor(response.data)
             );
         } catch (err) {
-            console.error(err);
             const error: axios.AxiosError = err;
-            const errorInfo = String(error.response.data);
-            const statusCode: number = error.response.status;
+            const errorInfo = String(error.response?.data);
+            const statusCode: number = error.response?.status;
 
             return new Response<TResult>(statusCode, undefined, errorInfo);
         }
