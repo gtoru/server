@@ -10,6 +10,7 @@ using server.core.Application;
 using server.core.Domain.Error;
 using server.core.Infrastructure;
 using server.core.Infrastructure.Error;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace server.core.Api.Authentication
 {
@@ -29,6 +30,11 @@ namespace server.core.Api.Authentication
         }
 
         [AllowAnonymous]
+        [SwaggerOperation(
+            Description = "User emails are unique",
+            Summary = "Registers new user")]
+        [SwaggerResponse(200, "User is created", typeof(OkResult))]
+        [SwaggerResponse(409, "User with specified email already exists", typeof(ConflictResult))]
         [HttpPost("user/register")]
         public async Task<ActionResult> RegisterAsync(
             [FromBody] RegistrationRequest request,
@@ -49,6 +55,11 @@ namespace server.core.Api.Authentication
         }
 
         [AllowAnonymous]
+        [SwaggerOperation(
+            Summary = "Authenticates user",
+            Description = "Creates and returns JWT token with user info")]
+        [SwaggerResponse(200, "Authentication successful", typeof(string))]
+        [SwaggerResponse(403, "User not found or password is incorrect", typeof(ForbidResult))]
         [HttpPost("user/authenticate")]
         public async Task<ActionResult<string>> AuthenticateAsync(
             [FromBody] AuthenticationRequest request,
@@ -74,6 +85,14 @@ namespace server.core.Api.Authentication
             }
         }
 
+        [SwaggerOperation(
+            Description = "Requires authentication",
+            Summary = "Returns info about current user session")]
+        [SwaggerResponse(200, "Authentication successful, info returned", typeof(SessionInfo))]
+        [SwaggerResponse(401, "User unauthorized", typeof(UnauthorizedResult))]
+        [SwaggerResponse(404,
+            "Authentication token is valid, but user is not found. Sign of data corruption, unlikely to happen",
+            typeof(NotFoundResult))]
         [HttpGet("sessions/my")]
         public async Task<ActionResult<SessionInfo>> GetSessionInfoAsync([FromServices] IUnitOfWork unitOfWork)
         {

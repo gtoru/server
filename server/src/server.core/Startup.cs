@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -81,19 +82,44 @@ namespace server.core
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "GTO API",
-                    Version = "v1",
+                    Version = "v1"
+                });
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT based authorization header with Bearer scheme",
+                    Type = SecuritySchemeType.ApiKey,
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Scheme = "JSON Web Token",
+                    BearerFormat = "Bearer <your_token>"
+                });
+                options.EnableAnnotations();
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "JSON Web Token",
+                            Name = "Authorization",
+                            In = ParameterLocation.Header
+                        },
+                        new List<string>()
+                    }
                 });
             });
+            services.AddSwaggerGenNewtonsoftSupport();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
-            app.UseSwagger(options =>
-            {
-                options.RouteTemplate = "docs/{documentName}/docs.json";
-            });
+            app.UseSwagger(options => { options.RouteTemplate = "docs/{documentName}/docs.json"; });
             app.UseSwaggerUI(options =>
             {
                 options.RoutePrefix = "docs";
