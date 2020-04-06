@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - "server/**/*"
-      - ".github/workflows/server-workflow.yaml"
 
 jobs:
   build:
@@ -20,3 +19,33 @@ jobs:
       - uses: actions/checkout@v2
       - name: build and run tests in Docker
         run: yarn dtest
+
+  integration_tests:
+    runs-on: ubuntu-latest
+    name: Integration tests
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install deps
+        run: yarn install
+      - name: Boot up Server
+        run: docker-compose -f ./integration/js/docker-compose.yaml up -d
+      - name: Run tests
+        run: yarn workspace @gtoru/js-integration test
+
+  push_image:
+    runs-on: ubuntu-latest
+    name: Publish Docker image
+    needs: [build, unit-tests, integration_tests]
+    steps:
+      - uses: actions/checkout@v2
+        if: ${{ github.ref }} == 'master'
+      - name: Docker Login
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u gtoru --password-stdin
+      - name: Build Historical Image
+        run: docker build -t docker.pkg.github.com/gtoru/server/server:$GITHUB_RUN_NUMBER --target deploy server/
+      - name: Publish Historical Image
+        run: docker push docker.pkg.github.com/gtoru/server/server:$GITHUB_RUN_NUMBER
+      - name: Build Latest Image
+        run: docker build -t docker.pkg.github.com/gtoru/server/server --target deploy server/
+      - name: Publish Latest Image
+        run: docker push docker.pkg.github.com/gtoru/server/server
