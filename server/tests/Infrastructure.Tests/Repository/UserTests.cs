@@ -5,6 +5,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using server.core.Domain;
+using server.core.Domain.Authentication;
 using server.core.Infrastructure;
 using server.core.Infrastructure.Error;
 
@@ -107,6 +108,32 @@ namespace Infrastructure.Tests.Repository
             Func<Task> userSearch = async () => await _unitOfWork.Users.FindUserAsync(user.UserId);
 
             userSearch.Should().NotThrow();
+        }
+
+        [Test]
+        public async Task Should_save_admin_as_admin()
+        {
+            var admin = User.CreateAdmin(Email, Password);
+
+            await _unitOfWork.Users.AddUserAsync(admin);
+            await _unitOfWork.SaveAsync();
+
+            var foundUser = await _unitOfWork.Users.FindUserAsync(admin.UserId);
+
+            foundUser.AccessLevel.Should().Be(AccessLevel.Administrator);
+        }
+
+        [Test]
+        public async Task Should_save_user_as_user()
+        {
+            var user = User.CreateNew(Email, Password, _personalInfo);
+
+            await _unitOfWork.Users.AddUserAsync(user);
+            await _unitOfWork.SaveAsync();
+
+            var foundUser = await _unitOfWork.Users.FindUserAsync(user.UserId);
+
+            foundUser.AccessLevel.Should().Be(AccessLevel.User);
         }
 
         [Test]

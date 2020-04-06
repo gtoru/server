@@ -2,6 +2,7 @@ using System;
 using FluentAssertions;
 using NUnit.Framework;
 using server.core.Domain;
+using server.core.Domain.Authentication;
 
 namespace Domain.Tests
 {
@@ -32,6 +33,14 @@ namespace Domain.Tests
         }
 
         [Test]
+        public void Should_set_admin_access_rights_for_admins()
+        {
+            var admin = User.CreateAdmin(Address, Password);
+
+            admin.AccessLevel.Should().Be(AccessLevel.Administrator);
+        }
+
+        [Test]
         public void Should_set_correct_email()
         {
             var user = User.CreateNew(Address, Password, _personalInfo);
@@ -47,6 +56,14 @@ namespace Domain.Tests
             Action passwordVerification = () => user.Password.Verify(Password);
 
             passwordVerification.Should().NotThrow();
+        }
+
+        [Test]
+        public void Should_set_minimal_access_rights_for_normal_user()
+        {
+            var user = User.CreateNew(Address, Password, _personalInfo);
+
+            user.AccessLevel.Should().Be(AccessLevel.User);
         }
 
         [Test]

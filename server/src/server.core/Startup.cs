@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -14,8 +15,12 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using server.core.Api.Authentication;
+using server.core.Api.Authorization;
 using server.core.Api.Middleware;
+using server.core.Application;
+using server.core.Domain.Authentication;
 using server.core.Infrastructure;
+using AuthorizationPolicy = server.core.Api.Authorization.AuthorizationPolicy;
 
 namespace server.core
 {
@@ -41,6 +46,7 @@ namespace server.core
                 });
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<IAuthenticator, JwtAuthenticator>();
+            services.AddSingleton<IAuthorizationHandler, AccessLevelHandler>();
             services.AddCors();
             services.AddApiVersioning(options =>
             {
@@ -76,6 +82,14 @@ namespace server.core
                     ValidateAudience = false,
                     IssuerSigningKey = new SymmetricSecurityKey(key)
                 };
+            });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(AuthorizationPolicy.OnlyAdmins, policy =>
+                    policy.Requirements.Add(new AccessLevelRequirement(AccessLevel.Administrator)));
+                options.AddPolicy(AuthorizationPolicy.EveryoneAllowed, policy =>
+                    policy.Requirements.Add(new AccessLevelRequirement(AccessLevel.User))
+                );
             });
             services.AddSwaggerGen(options =>
             {
@@ -115,10 +129,11 @@ namespace server.core
             services.AddSwaggerGenNewtonsoftSupport();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext dbContext)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IUnitOfWork unitOfWork, AppDbContext dbContext)
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
             dbContext.Database.Migrate();
+            CreateAdminUser(unitOfWork);
 
             app.UseSwagger(options => { options.RouteTemplate = "docs/{documentName}/docs.json"; });
             app.UseSwaggerUI(options =>
@@ -134,6 +149,19 @@ namespace server.core
             app.UseMiddleware<UnitOfWorkMiddleware>();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+        }
+
+        private void CreateAdminUser(IUnitOfWork unitOfWork)
+        {
+            var login = Configuration["Admin:Login"];
+            var password = Configuration["Admin:Password"];
+
+            AuthenticationManager.CreateAdmin(unitOfWork, login, password)
+                .ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
+
+            unitOfWork.SaveAsync().ConfigureAwait(false).GetAwaiter().GetResult();
         }
     }
 }

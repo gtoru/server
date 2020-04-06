@@ -30,7 +30,8 @@ namespace server.core.Api.Authentication
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.Name, user.UserId.ToString())
+                    new Claim(ClaimTypes.Name, user.UserId.ToString()),
+                    new Claim(ClaimTypes.Role, user.AccessLevel.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(_daysToExpire),
                 SigningCredentials = new SigningCredentials(

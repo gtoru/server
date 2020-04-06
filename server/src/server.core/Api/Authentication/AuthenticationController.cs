@@ -11,10 +11,10 @@ using server.core.Domain.Error;
 using server.core.Infrastructure;
 using server.core.Infrastructure.Error;
 using Swashbuckle.AspNetCore.Annotations;
+using AuthorizationPolicy = server.core.Api.Authorization.AuthorizationPolicy;
 
 namespace server.core.Api.Authentication
 {
-    [Authorize]
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/auth/v{version:apiVersion}")]
@@ -85,6 +85,8 @@ namespace server.core.Api.Authentication
             }
         }
 
+        [HttpGet("sessions/my")]
+        [Authorize(AuthorizationPolicy.EveryoneAllowed)]
         [SwaggerOperation(
             Description = "Requires authentication",
             Summary = "Returns info about current user session")]
@@ -93,7 +95,6 @@ namespace server.core.Api.Authentication
         [SwaggerResponse(404,
             "Authentication token is valid, but user is not found. Sign of data corruption, unlikely to happen",
             typeof(NotFoundResult))]
-        [HttpGet("sessions/my")]
         public async Task<ActionResult<SessionInfo>> GetSessionInfoAsync([FromServices] IUnitOfWork unitOfWork)
         {
             var userId = Guid.Parse(HttpContext.User.Claims.Single(c => c.Type == ClaimTypes.Name).Value);

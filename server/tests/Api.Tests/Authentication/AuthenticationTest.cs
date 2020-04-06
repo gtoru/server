@@ -2,11 +2,13 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Api.Tests.Helpers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using server.core;
 using server.core.Api.Dto;
@@ -33,7 +35,7 @@ namespace Api.Tests.Authentication
         private const string Password = "qwerty";
         private const string BaseRoute = "api/auth/v1";
         private const string Address = "foo st.";
-        private readonly DateTime _birthDay = new DateTime(1970, 01, 01);
+        private readonly DateTime _birthDay = DateTime.Now;
         private const string Employer = "G-man";
         private const string Occupation = "Alientbeater";
         private const string Name = "John Doe";
@@ -97,6 +99,27 @@ namespace Api.Tests.Authentication
         }
 
         [Test]
+        public async Task Should_create_admin_user_on_startup()
+        {
+            var configuration = _factory.Services.GetService<IConfiguration>();
+            var login = configuration["Admin:Login"];
+            var password = configuration["Admin:Password"];
+
+            var request = new AuthenticationRequest
+            {
+                Email = login,
+                Password = password
+            };
+
+            var authenticationResult = await Client.PostAsync(
+                AuthenticationRoute,
+                request.ToJsonContent()
+            );
+
+            authenticationResult.StatusCode.Should().Be(200);
+        }
+
+        [Test]
         public async Task Should_get_session_info()
         {
             var token = await RegisterAndAuthenticateAsync();
@@ -108,16 +131,12 @@ namespace Api.Tests.Authentication
 
             sessionResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var sessionInfo =
-                JsonSerializer.Deserialize<SessionInfo>(await sessionResponse.Content.ReadAsStringAsync(),
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+            var responseString = await sessionResponse.Content.ReadAsStringAsync();
+            var sessionInfo = JsonConvert.DeserializeObject<SessionInfo>(responseString);
 
             sessionInfo.Email.Should().BeEquivalentTo(Email);
             sessionInfo.PersonalInfo.Address.Should().BeEquivalentTo(Address);
-            sessionInfo.PersonalInfo.Birthday.Should().Be(_birthDay);
+            sessionInfo.PersonalInfo.Birthday.Should().BeSameDateAs(_birthDay);
             sessionInfo.PersonalInfo.Employer.Should().Be(Employer);
             sessionInfo.PersonalInfo.Name.Should().Be(Name);
             sessionInfo.PersonalInfo.Occupation.Should().Be(Occupation);

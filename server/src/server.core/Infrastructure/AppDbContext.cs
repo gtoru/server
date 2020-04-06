@@ -1,6 +1,9 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using server.core.Domain;
+using server.core.Domain.Authentication;
 
 namespace server.core.Infrastructure
 {
@@ -48,6 +51,13 @@ namespace server.core.Infrastructure
                     builder.Property(m => m.HashedPassword);
                     builder.Property(m => m.HashAlgorithm);
                 });
+
+            var converter = new ValueConverter<AccessLevel, string>(
+                v => v.ToString(),
+                v => Enum.Parse<AccessLevel>(v));
+            entityTypeBuilder
+                .Property(m => m.AccessLevel)
+                .HasConversion(converter);
         }
     }
 }

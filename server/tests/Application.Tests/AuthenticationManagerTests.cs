@@ -1,11 +1,14 @@
 using System;
 using System.Threading.Tasks;
+using FluentAssertions;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using NUnit.Framework;
 using server.core.Application;
 using server.core.Domain;
 using server.core.Domain.Storage;
 using server.core.Infrastructure;
+using server.core.Infrastructure.Error;
 
 namespace Application.Tests
 {
@@ -42,6 +45,18 @@ namespace Application.Tests
             await _unitOfWork.Users
                 .Received(1)
                 .AddUserAsync(Arg.Is<User>(u => u.Email.Address == Email));
+        }
+
+        [Test]
+        public void Should_not_throw_if_admin_user_already_exists()
+        {
+            var admin = User.CreateAdmin(Email, Password);
+            _unitOfWork.Users.AddUserAsync(Arg.Is(admin)).Throws<UserAlreadyExistsException>();
+
+            Func<Task> adminCreation =
+                async () => await AuthenticationManager.CreateAdmin(_unitOfWork, Email, Password);
+
+            adminCreation.Should().NotThrow();
         }
     }
 }
