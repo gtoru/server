@@ -16,6 +16,7 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using server.core.Api.Authentication;
 using server.core.Api.Authorization;
+using server.core.Api.Controllers.Health;
 using server.core.Api.Middleware;
 using server.core.Application;
 using server.core.Domain.Authentication;
@@ -44,6 +45,7 @@ namespace server.core
                         DateTimeStyles = DateTimeStyles.AdjustToUniversal
                     });
                 });
+            services.AddSingleton<StatusReporter>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<IAuthenticator, JwtAuthenticator>();
             services.AddSingleton<IAuthorizationHandler, AccessLevelHandler>();
@@ -129,7 +131,12 @@ namespace server.core
             services.AddSwaggerGenNewtonsoftSupport();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IUnitOfWork unitOfWork, AppDbContext dbContext)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            IUnitOfWork unitOfWork,
+            AppDbContext dbContext,
+            StatusReporter statusReporter)
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
             dbContext.Database.Migrate();
@@ -150,6 +157,8 @@ namespace server.core
             app.UseMiddleware<UnitOfWorkMiddleware>();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+            statusReporter.Current = StatusReporter.Status.Ready;
         }
 
         private void CreateAdminUser(IUnitOfWork unitOfWork)
