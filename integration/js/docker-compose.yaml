@@ -1,0 +1,25 @@
+version: "3.7"
+
+services:
+  gto-server:
+    build:
+      context: ../../../server/server
+      dockerfile: Dockerfile
+      target: deploy
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgre
+    environment:
+      DB__Host: postgre
+      DB__Port: 5432
+      ASPNETCORE_ENVIRONMENT: Development
+
+  postgre:
+    image: postgres:12.2
+    environment:
+      POSTGRES_DB: gto-db
+      POSTGRES_PASSWORD: gto-db-password
+      POSTGRES_USER: gto-db-user
+    expose:
+      - "5432"
