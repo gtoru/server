@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using server.core.Domain;
@@ -17,17 +16,14 @@ namespace Infrastructure.Tests.Repository
         [SetUp]
         public void SetUp()
         {
-            _connection = new SqliteConnection("DataSource=:memory:");
-            _connection.Open();
-
             var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite(_connection)
+                .UseInMemoryDatabase("gto-db")
                 .Options;
 
-            var context = new AppDbContext(options);
-            context.Database.Migrate();
+            _context = new AppDbContext(options);
+            _context.Database.EnsureCreated();
 
-            _unitOfWork = new UnitOfWork(context);
+            _unitOfWork = new UnitOfWork(_context);
 
             _personalInfo = new PersonalInfo(
                 "John Doe",
@@ -40,15 +36,15 @@ namespace Infrastructure.Tests.Repository
         [TearDown]
         public void TearDown()
         {
-            _connection.Close();
+            _context.Database.EnsureDeleted();
         }
 
         private const string Email = "foo@bar.baz";
         private const string Password = "qwerty";
 
-        private SqliteConnection _connection;
         private IUnitOfWork _unitOfWork;
         private PersonalInfo _personalInfo;
+        private AppDbContext _context;
 
         [Test]
         public async Task Should_fail_to_add_existing_email()
