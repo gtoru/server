@@ -9,7 +9,8 @@ using server.core.Api.Dto;
 using server.core.Application;
 using server.core.Domain.Error;
 using server.core.Infrastructure;
-using server.core.Infrastructure.Error;
+using server.core.Infrastructure.Error.AlreadyExists;
+using server.core.Infrastructure.Error.NotFound;
 using Swashbuckle.AspNetCore.Annotations;
 using AuthorizationPolicy = server.core.Api.Authorization.AuthorizationPolicy;
 

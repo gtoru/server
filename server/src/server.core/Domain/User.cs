@@ -19,6 +19,7 @@ namespace server.core.Domain
             UserId = Guid.NewGuid();
             AccessLevel = AccessLevel.User;
             TestSessions = new List<TestSession>();
+            CurrentSession = Guid.Empty;
         }
 
         public User(Password password, Email email, Guid userId, PersonalInfo personalInfo, AccessLevel accessLevel)
@@ -29,6 +30,7 @@ namespace server.core.Domain
             PersonalInfo = personalInfo;
             AccessLevel = accessLevel;
             TestSessions = new List<TestSession>();
+            CurrentSession = Guid.Empty;
         }
 
         public Password Password { get; }
@@ -38,7 +40,7 @@ namespace server.core.Domain
         public AccessLevel AccessLevel { get; private set; }
         public List<TestSession> TestSessions { get; set; }
 
-        public TestSession Current { get; set; }
+        public Guid CurrentSession { get; set; }
 
         public static User CreateNew(string email, string password, PersonalInfo personalInfo)
         {

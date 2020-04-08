@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using server.core.Domain;
 using server.core.Domain.Authentication;
+using server.core.Domain.Misc;
+using server.core.Domain.Tasks;
+using server.core.Domain.Tasks.Helpers;
 
 namespace server.core.Infrastructure
 {
@@ -15,10 +18,17 @@ namespace server.core.Infrastructure
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<VariantTask> Tasks { get; set; }
+        public DbSet<Quiz> Quizzes { get; set; }
+        public DbSet<TestSession> TestSessions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             ConfigureUser(modelBuilder.Entity<User>());
+            ConfigureQuiz(modelBuilder.Entity<Quiz>());
+            ConfigureSessions(modelBuilder.Entity<TestSession>());
+            ConfigureTask(modelBuilder.Entity<VariantTask>());
+            ConfigureQuizTask(modelBuilder.Entity<QuizTask>());
         }
 
         private void ConfigureUser(EntityTypeBuilder<User> entityTypeBuilder)
@@ -58,6 +68,84 @@ namespace server.core.Infrastructure
             entityTypeBuilder
                 .Property(m => m.AccessLevel)
                 .HasConversion(converter);
+
+            entityTypeBuilder
+                .HasMany(m => m.TestSessions)
+                .WithOne(m => m.User);
+        }
+
+        private void ConfigureQuiz(EntityTypeBuilder<Quiz> entityTypeBuilder)
+        {
+            entityTypeBuilder
+                .HasKey(m => m.QuizId);
+
+            entityTypeBuilder
+                .Property(m => m.Locked)
+                .HasDefaultValue(false);
+        }
+
+        private void ConfigureTask(EntityTypeBuilder<VariantTask> entityTypeBuilder)
+        {
+            entityTypeBuilder
+                .HasKey(m => m.TaskId);
+
+            entityTypeBuilder
+                .Property(m => m.Variants)
+                // ATTENTION: Postgres specific type. Will not work with other DB
+                .HasColumnType("jsonb");
+
+            entityTypeBuilder
+                .Property(m => m.Locked)
+                .HasDefaultValue(false);
+        }
+
+        private void ConfigureSessions(EntityTypeBuilder<TestSession> entityTypeBuilder)
+        {
+            entityTypeBuilder
+                .HasKey(m => m.SessionId);
+
+            entityTypeBuilder
+                .HasOne(m => m.Quiz)
+                .WithMany();
+
+            entityTypeBuilder
+                .HasOne(m => m.User)
+                .WithMany(m => m.TestSessions);
+
+            entityTypeBuilder
+                .Property(m => m.Answers)
+                // ATTENTION: Postgres specific type. Will not work with other DB
+                .HasColumnType("jsonb");
+
+            entityTypeBuilder
+                .Property(m => m.Result)
+                .HasDefaultValue(0);
+
+            entityTypeBuilder
+                .Property(m => m.IsFinished)
+                .HasDefaultValue(false);
+
+            entityTypeBuilder
+                .Property(m => m.TimeProvider)
+                .HasConversion(
+                    t => "UTC",
+                    t => new UtcTimeProvider());
+        }
+
+        private void ConfigureQuizTask(EntityTypeBuilder<QuizTask> entityTypeBuilder)
+        {
+            entityTypeBuilder
+                .HasKey(m => new {m.QuizId, m.TaskId});
+
+            entityTypeBuilder
+                .HasOne(m => m.Quiz)
+                .WithMany(m => m.Tasks)
+                .HasForeignKey(m => m.TaskId);
+
+            entityTypeBuilder
+                .HasOne(m => m.Task)
+                .WithMany()
+                .HasForeignKey(m => m.QuizId);
         }
     }
 }

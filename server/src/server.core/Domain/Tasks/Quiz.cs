@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using server.core.Domain.Error;
+using server.core.Domain.Tasks.Helpers;
 
 namespace server.core.Domain.Tasks
 {
@@ -13,12 +15,18 @@ namespace server.core.Domain.Tasks
         public Quiz(Guid quizId, List<VariantTask> tasks)
         {
             QuizId = quizId;
-            Tasks = tasks;
+            Tasks = tasks.Select(t => new QuizTask
+            {
+                Quiz = this,
+                QuizId = quizId,
+                Task = t,
+                TaskId = t.TaskId
+            }).ToList();
         }
 
         public Guid QuizId { get; set; }
 
-        public List<VariantTask> Tasks { get; set; }
+        public List<QuizTask> Tasks { get; set; }
 
         public bool Locked { get; set; }
 
@@ -36,7 +44,7 @@ namespace server.core.Domain.Tasks
         {
             Locked = true;
 
-            foreach (var task in Tasks) task.Lock();
+            foreach (var task in Tasks) task.Task.Lock();
         }
     }
 }

@@ -3,7 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using server.core.Domain;
 using server.core.Domain.Storage;
-using server.core.Infrastructure.Error;
+using server.core.Infrastructure.Error.AlreadyExists;
+using server.core.Infrastructure.Error.NotFound;
 
 namespace server.core.Infrastructure.Storage
 {

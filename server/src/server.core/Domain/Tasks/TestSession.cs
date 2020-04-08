@@ -9,8 +9,6 @@ namespace server.core.Domain.Tasks
     {
         private static readonly TimeSpan TimeToComplete = TimeSpan.FromMinutes(30);
 
-        private readonly ITimeProvider _timeProvider;
-
         public TestSession()
         {
         }
@@ -22,28 +20,32 @@ namespace server.core.Domain.Tasks
             int result,
             int possibleResult,
             Quiz quiz,
+            User user,
             List<string> answers,
             ITimeProvider timeProvider)
         {
-            _timeProvider = timeProvider;
+            TimeProvider = timeProvider;
             SessionId = sessionId;
             Started = started;
             IsFinished = isFinished;
             Result = result;
             PossibleResult = possibleResult;
             Quiz = quiz;
+            User = user;
             Answers = answers;
         }
 
+        public ITimeProvider TimeProvider { get; set; }
         public Guid SessionId { get; set; }
         public DateTime Started { get; set; }
         public bool IsFinished { get; set; }
         public int Result { get; set; }
         public int PossibleResult { get; set; }
         public Quiz Quiz { get; set; }
+        public User User { get; set; }
         public List<string> Answers { get; set; }
 
-        public static TestSession StartNew(Quiz quiz, ITimeProvider timeProvider = null)
+        public static TestSession StartNew(User user, Quiz quiz, ITimeProvider timeProvider = null)
         {
             var id = Guid.NewGuid();
 
@@ -67,6 +69,7 @@ namespace server.core.Domain.Tasks
                 0,
                 possibleResult,
                 quiz,
+                user,
                 answers,
                 timeProvider);
         }
@@ -76,7 +79,7 @@ namespace server.core.Domain.Tasks
             if (taskNumber < 0 || taskNumber >= Answers.Count)
                 throw new TaskNumberOutOfRangeException();
 
-            if (IsFinished || Started + TimeToComplete < _timeProvider.GetCurrent())
+            if (IsFinished || Started + TimeToComplete < TimeProvider.GetCurrent())
             {
                 IsFinished = true;
                 throw new TestSessionAlreadyFinishedException();
@@ -93,7 +96,7 @@ namespace server.core.Domain.Tasks
             IsFinished = true;
 
             for (var i = 0; i < Answers.Count; ++i)
-                if (Quiz.Tasks[i].CheckAnswer(Answers[i]))
+                if (Quiz.Tasks[i].Task.CheckAnswer(Answers[i]))
                     Result += 1;
         }
     }
