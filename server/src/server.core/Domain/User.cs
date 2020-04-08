@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using server.core.Domain.Authentication;
+using server.core.Domain.Tasks;
 
 namespace server.core.Domain
 {
@@ -16,6 +18,7 @@ namespace server.core.Domain
             PersonalInfo = personalInfo;
             UserId = Guid.NewGuid();
             AccessLevel = AccessLevel.User;
+            TestSessions = new List<TestSession>();
         }
 
         public User(Password password, Email email, Guid userId, PersonalInfo personalInfo, AccessLevel accessLevel)
@@ -25,15 +28,17 @@ namespace server.core.Domain
             UserId = userId;
             PersonalInfo = personalInfo;
             AccessLevel = accessLevel;
+            TestSessions = new List<TestSession>();
         }
 
         public Password Password { get; }
         public Email Email { get; }
         public Guid UserId { get; }
-
         public PersonalInfo PersonalInfo { get; }
-
         public AccessLevel AccessLevel { get; private set; }
+        public List<TestSession> TestSessions { get; set; }
+
+        public TestSession Current { get; set; }
 
         public static User CreateNew(string email, string password, PersonalInfo personalInfo)
         {

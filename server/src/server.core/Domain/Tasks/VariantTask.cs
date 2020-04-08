@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using server.core.Domain.Error;
 
 namespace server.core.Domain.Tasks
 {
@@ -34,15 +33,6 @@ namespace server.core.Domain.Tasks
 
         public static VariantTask CreateNew(string question, string answer, List<string> variants)
         {
-            foreach (var variant in variants)
-            {
-                if (variant.Contains('#'))
-                    throw new AnswerCantContainNumberSignException();
-
-                if (variant.Contains('@'))
-                    throw new AnswerCantContainAtSignException();
-            }
-
             var id = Guid.NewGuid();
             return new VariantTask(
                 id,

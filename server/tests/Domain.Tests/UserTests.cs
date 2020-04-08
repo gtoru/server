@@ -25,6 +25,14 @@ namespace Domain.Tests
         private PersonalInfo _personalInfo;
 
         [Test]
+        public void Should_create_with_empty_test_session()
+        {
+            var user = User.CreateNew(Address, Password, _personalInfo);
+
+            user.TestSessions.Count.Should().Be(0);
+        }
+
+        [Test]
         public void Should_create_with_unverified_email()
         {
             var user = User.CreateNew(Address, Password, _personalInfo);
