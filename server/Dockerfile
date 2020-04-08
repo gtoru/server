@@ -5,11 +5,11 @@ WORKDIR /app
 COPY server.sln .
 COPY src/server.core/server.core.csproj src/server.core/server.core.csproj
 
-RUN dotnet restore
+RUN dotnet restore src/server.core/server.core.csproj
 
-COPY . /app
+COPY ./src /app/src
 
-RUN dotnet build -c Release --no-restore
+RUN dotnet build -c Release --no-restore src/server.core/server.core.csproj
 RUN dotnet publish "src/server.core/server.core.csproj" -c Release --output "./dist"
 
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 as deploy
