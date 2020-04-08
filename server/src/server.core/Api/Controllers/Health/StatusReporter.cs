@@ -8,8 +8,9 @@ namespace server.core.Api.Controllers.Health
             Ready
         }
 
-        private Status _current;
         private readonly object sync = new object();
+
+        private Status _current;
 
         public StatusReporter()
         {

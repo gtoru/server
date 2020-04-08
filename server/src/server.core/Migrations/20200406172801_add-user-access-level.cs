@@ -7,8 +7,8 @@ namespace server.core.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "AccessLevel",
-                table: "Users",
+                "AccessLevel",
+                "Users",
                 nullable: false,
                 defaultValue: "");
         }
@@ -16,8 +16,8 @@ namespace server.core.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "AccessLevel",
-                table: "Users");
+                "AccessLevel",
+                "Users");
         }
     }
 }
