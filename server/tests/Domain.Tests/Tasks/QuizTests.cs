@@ -27,7 +27,9 @@ namespace Domain.Tests.Tasks
         {
             var quiz = Quiz.CreateNew(new List<VariantTask> {_task});
 
-            quiz.Tasks.Single().Should().BeEquivalentTo(_task);
+            quiz.Tasks.Single().Task.Should().BeEquivalentTo(_task);
+            quiz.Tasks.Single().TaskId.Should().Be(_task.TaskId);
+            quiz.Tasks.Single().QuizId.Should().Be(quiz.QuizId);
             quiz.Locked.Should().BeFalse();
         }
 
@@ -38,7 +40,7 @@ namespace Domain.Tests.Tasks
 
             quiz.Lock();
             quiz.Locked.Should().BeTrue();
-            quiz.Tasks.All(t => t.Locked).Should().BeTrue();
+            quiz.Tasks.All(t => t.Task.Locked).Should().BeTrue();
         }
 
         [Test]

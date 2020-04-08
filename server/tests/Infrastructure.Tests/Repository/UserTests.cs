@@ -1,28 +1,22 @@
 using System;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using server.core.Domain;
 using server.core.Domain.Authentication;
 using server.core.Infrastructure;
-using server.core.Infrastructure.Error;
+using server.core.Infrastructure.Error.AlreadyExists;
+using server.core.Infrastructure.Error.NotFound;
 
 namespace Infrastructure.Tests.Repository
 {
     [TestFixture]
     public class UserTests
     {
-        [SetUp]
-        public void SetUp()
+        [OneTimeSetUp]
+        public async Task SetUp()
         {
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase("gto-db")
-                .Options;
-
-            _context = new AppDbContext(options);
-            _context.Database.EnsureCreated();
-
+            _context = await DbTestFixture.GetContextAsync();
             _unitOfWork = new UnitOfWork(_context);
 
             _personalInfo = new PersonalInfo(
@@ -31,12 +25,11 @@ namespace Infrastructure.Tests.Repository
                 "Over the Rainbow",
                 "Believer",
                 "Monsters inc.");
-        }
 
-        [TearDown]
-        public void TearDown()
-        {
-            _context.Database.EnsureDeleted();
+            _user = User.CreateNew(Email, Password, _personalInfo);
+
+            await _unitOfWork.Users.AddUserAsync(_user);
+            await _unitOfWork.SaveAsync();
         }
 
         private const string Email = "foo@bar.baz";
@@ -45,15 +38,21 @@ namespace Infrastructure.Tests.Repository
         private IUnitOfWork _unitOfWork;
         private PersonalInfo _personalInfo;
         private AppDbContext _context;
+        private User _user;
 
         [Test]
-        public async Task Should_fail_to_add_existing_email()
+        public async Task Should_create_user_with_empty_test_sessions()
         {
-            var firstUser = User.CreateNew(Email, Password, _personalInfo);
-            var secondUser = User.CreateNew(Email, Password, _personalInfo);
+            var user = await _unitOfWork.Users.FindUserAsync(_user.UserId);
 
-            await _unitOfWork.Users.AddUserAsync(firstUser);
-            await _unitOfWork.SaveAsync();
+            user.TestSessions.Should().BeEmpty();
+            user.CurrentSession.Should().BeEmpty();
+        }
+
+        [Test]
+        public void Should_fail_to_add_existing_email()
+        {
+            var secondUser = User.CreateNew(Email, Password, _personalInfo);
 
             Func<Task> secondUserAddition = async () => await _unitOfWork.Users.AddUserAsync(secondUser);
 
@@ -63,17 +62,12 @@ namespace Infrastructure.Tests.Repository
         [Test]
         public async Task Should_find_existing_user()
         {
-            var user = User.CreateNew(Email, Password, _personalInfo);
-
-            await _unitOfWork.Users.AddUserAsync(user);
-            await _unitOfWork.SaveAsync();
-
-            var foundUser = await _unitOfWork.Users.FindUserAsync(user.UserId);
+            var foundUser = await _unitOfWork.Users.FindUserAsync(_user.UserId);
             Action passwordVerification = () => foundUser.Password.Verify(Password);
 
-            foundUser.UserId.Should().Be(user.UserId);
-            foundUser.Email.Address.Should().BeEquivalentTo(user.Email.Address);
-            foundUser.Email.IsVerified.Should().Be(user.Email.IsVerified);
+            foundUser.UserId.Should().Be(_user.UserId);
+            foundUser.Email.Address.Should().BeEquivalentTo(_user.Email.Address);
+            foundUser.Email.IsVerified.Should().Be(_user.Email.IsVerified);
             foundUser.PersonalInfo.Should().BeEquivalentTo(_personalInfo);
             passwordVerification.Should().NotThrow();
         }
@@ -81,11 +75,6 @@ namespace Infrastructure.Tests.Repository
         [Test]
         public async Task Should_find_user_by_email()
         {
-            var user = User.CreateNew(Email, Password, _personalInfo);
-
-            await _unitOfWork.Users.AddUserAsync(user);
-            await _unitOfWork.SaveAsync();
-
             var foundUser = await _unitOfWork.Users.FindUserAsync(Email);
             Action passwordVerification = () => foundUser.Password.Verify(Password);
 
@@ -94,14 +83,9 @@ namespace Infrastructure.Tests.Repository
         }
 
         [Test]
-        public async Task Should_not_throw_on_existing_user_search()
+        public void Should_not_throw_on_existing_user_search()
         {
-            var user = User.CreateNew(Email, Password, _personalInfo);
-
-            await _unitOfWork.Users.AddUserAsync(user);
-            await _unitOfWork.SaveAsync();
-
-            Func<Task> userSearch = async () => await _unitOfWork.Users.FindUserAsync(user.UserId);
+            Func<Task> userSearch = async () => await _unitOfWork.Users.FindUserAsync(_user.UserId);
 
             userSearch.Should().NotThrow();
         }
@@ -109,7 +93,7 @@ namespace Infrastructure.Tests.Repository
         [Test]
         public async Task Should_save_admin_as_admin()
         {
-            var admin = User.CreateAdmin(Email, Password);
+            var admin = User.CreateAdmin("admin", "admin");
 
             await _unitOfWork.Users.AddUserAsync(admin);
             await _unitOfWork.SaveAsync();
@@ -122,12 +106,7 @@ namespace Infrastructure.Tests.Repository
         [Test]
         public async Task Should_save_user_as_user()
         {
-            var user = User.CreateNew(Email, Password, _personalInfo);
-
-            await _unitOfWork.Users.AddUserAsync(user);
-            await _unitOfWork.SaveAsync();
-
-            var foundUser = await _unitOfWork.Users.FindUserAsync(user.UserId);
+            var foundUser = await _unitOfWork.Users.FindUserAsync(_user.UserId);
 
             foundUser.AccessLevel.Should().Be(AccessLevel.User);
         }
@@ -135,7 +114,7 @@ namespace Infrastructure.Tests.Repository
         [Test]
         public void Should_throw_on_non_existent_email()
         {
-            Func<Task> userSearch = async () => await _unitOfWork.Users.FindUserAsync(Email);
+            Func<Task> userSearch = async () => await _unitOfWork.Users.FindUserAsync("i@dont.exist");
 
             userSearch.Should().Throw<UserNotFoundException>();
         }
