@@ -11,6 +11,7 @@ namespace server.core.Domain.Storage
         Task AddTaskAsync(VariantTask task);
         Task<VariantTask> FindTaskAsync(Guid taskId);
         IQueryable<VariantTask> GetAllAsQueryable();
+        IAsyncEnumerable<VariantTask> GetAllEnumerableAsync();
         Task<List<VariantTask>> GetAllAsync();
     }
 }

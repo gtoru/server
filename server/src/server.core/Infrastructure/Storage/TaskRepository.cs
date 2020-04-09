@@ -41,6 +41,11 @@ namespace server.core.Infrastructure.Storage
             return _dbContext.Tasks.AsQueryable();
         }
 
+        public IAsyncEnumerable<VariantTask> GetAllEnumerableAsync()
+        {
+            return _dbContext.Tasks.AsAsyncEnumerable();
+        }
+
         public async Task<List<VariantTask>> GetAllAsync()
         {
             return await GetAllAsQueryable().ToListAsync();

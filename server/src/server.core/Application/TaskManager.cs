@@ -44,9 +44,19 @@ namespace server.core.Application
             return unitOfWork.Quizzes.GetAllAsQueryable();
         }
 
+        public static IAsyncEnumerable<Quiz> GetAllQuizzesEnumerableAsync(IUnitOfWork unitOfWork)
+        {
+            return unitOfWork.Quizzes.GetAllEnumerableAsync();
+        }
+
         public static IQueryable<VariantTask> GetAllTasks(IUnitOfWork unitOfWork)
         {
             return unitOfWork.Tasks.GetAllAsQueryable();
+        }
+
+        public static IAsyncEnumerable<VariantTask> GetAllTasksEnumerableAsync(IUnitOfWork unitOfWork)
+        {
+            return unitOfWork.Tasks.GetAllEnumerableAsync();
         }
     }
 }

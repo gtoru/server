@@ -41,6 +41,11 @@ namespace server.core.Infrastructure.Storage
             return _dbContext.Quizzes.AsQueryable();
         }
 
+        public IAsyncEnumerable<Quiz> GetAllEnumerableAsync()
+        {
+            return _dbContext.Quizzes.AsAsyncEnumerable();
+        }
+
         public async Task<List<Quiz>> GetAllAsync()
         {
             return await GetAllAsQueryable().ToListAsync();
