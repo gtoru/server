@@ -30,7 +30,9 @@ namespace server.core.Infrastructure.Storage
 
         public async Task<User> FindUserAsync(Guid id)
         {
-            var user = await _dbContext.Users.FindAsync(id);
+            var user = await _dbContext.Users
+                .Include(u => u.TestSessions)
+                .FirstOrDefaultAsync(u => u.UserId == id);
 
             if (user is null)
                 throw new UserNotFoundException();

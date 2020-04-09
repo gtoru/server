@@ -32,6 +32,7 @@ namespace server.core.Domain.Tasks
             PossibleResult = possibleResult;
             Quiz = quiz;
             User = user;
+            UserId = user.UserId;
             Answers = answers;
         }
 
@@ -43,15 +44,14 @@ namespace server.core.Domain.Tasks
         public int PossibleResult { get; set; }
         public Quiz Quiz { get; set; }
         public User User { get; set; }
+        public Guid UserId { get; set; }
         public List<string> Answers { get; set; }
 
-        public static TestSession StartNew(User user, Quiz quiz, ITimeProvider timeProvider = null)
+        public static TestSession CreateNew(User user, Quiz quiz, ITimeProvider timeProvider = null)
         {
             var id = Guid.NewGuid();
 
             timeProvider ??= new UtcTimeProvider();
-
-            quiz.Lock();
 
             var possibleResult = quiz.Tasks.Count;
 
@@ -79,7 +79,7 @@ namespace server.core.Domain.Tasks
             if (taskNumber < 0 || taskNumber >= Answers.Count)
                 throw new TaskNumberOutOfRangeException();
 
-            if (IsFinished || Started + TimeToComplete < TimeProvider.GetCurrent())
+            if (IsFinished || Expired())
             {
                 IsFinished = true;
                 throw new TestSessionAlreadyFinishedException();
@@ -98,6 +98,11 @@ namespace server.core.Domain.Tasks
             for (var i = 0; i < Answers.Count; ++i)
                 if (Quiz.Tasks[i].Task.CheckAnswer(Answers[i]))
                     Result += 1;
+        }
+
+        public bool Expired()
+        {
+            return Started + TimeToComplete < TimeProvider.GetCurrent();
         }
     }
 }

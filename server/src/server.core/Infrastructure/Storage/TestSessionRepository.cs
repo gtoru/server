@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using server.core.Domain.Storage;
 using server.core.Domain.Tasks;
 using server.core.Infrastructure.Error.AlreadyExists;
@@ -28,7 +29,8 @@ namespace server.core.Infrastructure.Storage
 
         public async Task<TestSession> FindTestSessionAsync(Guid sessionId)
         {
-            var foundSession = await _dbContext.TestSessions.FindAsync(sessionId);
+            var foundSession = await _dbContext.TestSessions
+                .FirstOrDefaultAsync(s => s.SessionId == sessionId);
 
             if (foundSession == null)
                 throw new SessionNotFoundException();

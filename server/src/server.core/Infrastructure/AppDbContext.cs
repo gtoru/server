@@ -70,8 +70,12 @@ namespace server.core.Infrastructure
                 .HasConversion(converter);
 
             entityTypeBuilder
+                .Ignore(m => m.CurrentSession);
+
+            entityTypeBuilder
                 .HasMany(m => m.TestSessions)
-                .WithOne(m => m.User);
+                .WithOne(m => m.User)
+                .HasForeignKey(m => m.UserId);
         }
 
         private void ConfigureQuiz(EntityTypeBuilder<Quiz> entityTypeBuilder)
@@ -109,10 +113,6 @@ namespace server.core.Infrastructure
                 .WithMany();
 
             entityTypeBuilder
-                .HasOne(m => m.User)
-                .WithMany(m => m.TestSessions);
-
-            entityTypeBuilder
                 .Property(m => m.Answers)
                 // ATTENTION: Postgres specific type. Will not work with other DB
                 .HasColumnType("jsonb");
@@ -130,6 +130,10 @@ namespace server.core.Infrastructure
                 .HasConversion(
                     t => "UTC",
                     t => new UtcTimeProvider());
+
+            entityTypeBuilder
+                .HasOne(m => m.User)
+                .WithMany(m => m.TestSessions);
         }
 
         private void ConfigureQuizTask(EntityTypeBuilder<QuizTask> entityTypeBuilder)
@@ -140,12 +144,12 @@ namespace server.core.Infrastructure
             entityTypeBuilder
                 .HasOne(m => m.Quiz)
                 .WithMany(m => m.Tasks)
-                .HasForeignKey(m => m.TaskId);
+                .HasForeignKey(m => m.QuizId);
 
             entityTypeBuilder
                 .HasOne(m => m.Task)
                 .WithMany()
-                .HasForeignKey(m => m.QuizId);
+                .HasForeignKey(m => m.TaskId);
         }
     }
 }
