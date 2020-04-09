@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using server.core.Domain;
 using server.core.Domain.Authentication;
+using server.core.Domain.Error;
+using server.core.Domain.Tasks;
 
 namespace Domain.Tests
 {
@@ -23,6 +27,76 @@ namespace Domain.Tests
         private const string Address = "foo@bar.baz";
         private const string Password = "qwerty";
         private PersonalInfo _personalInfo;
+
+        [Test]
+        public void Should_add_answers()
+        {
+            var user = User.CreateNew(Address, Password, _personalInfo);
+            var quiz = Quiz.CreateNew(
+                new List<VariantTask>
+                {
+                    VariantTask.CreateNew("foo", "bar", new List<string>()),
+                    VariantTask.CreateNew("baz", "quux", new List<string>())
+                });
+
+            user.StartNewSession(quiz);
+
+            user.CurrentSession.Answer(0, "bar");
+            user.CurrentSession.Answer(1, "baz");
+
+            user.CurrentSession.Answers.Count.Should().Be(2);
+        }
+
+        [Test]
+        public void Should_calculate_score()
+        {
+            var user = User.CreateNew(Address, Password, _personalInfo);
+            var quiz = Quiz.CreateNew(
+                new List<VariantTask>
+                {
+                    VariantTask.CreateNew("foo", "bar", new List<string>()),
+                    VariantTask.CreateNew("baz", "quux", new List<string>())
+                });
+
+            user.StartNewSession(quiz);
+
+            user.CurrentSession.Answer(0, "bar");
+            user.CurrentSession.Answer(1, "baz");
+
+            user.CurrentSession.Finish();
+            user.CurrentSession.Result.Should().Be(1);
+        }
+
+        [Test]
+        public void Should_add_new_session()
+        {
+            var user = User.CreateNew(Address, Password, _personalInfo);
+            var quiz = Quiz.CreateNew(
+                new List<VariantTask>
+                {
+                    VariantTask.CreateNew("foo", "bar", new List<string>()),
+                    VariantTask.CreateNew("baz", "quux", new List<string>())
+                });
+
+            user.StartNewSession(quiz);
+
+            user.HasActiveSession().Should().BeTrue();
+            user.TestSessions.Count.Should().Be(1);
+            user.TestSessions.Single().Should().Be(user.CurrentSession);
+            user.CurrentSession.Quiz.Should().BeEquivalentTo(quiz);
+        }
+
+        [Test]
+        public void Should_throw_when_starting_new_session_if_has_active_session()
+        {
+            var user = User.CreateNew(Address, Password, _personalInfo);
+            var quiz = Quiz.CreateNew(new List<VariantTask> {VariantTask.CreateNew("foo", "bar", new List<string>())});
+            user.StartNewSession(quiz);
+
+            Action sessionStart = () => user.StartNewSession(quiz);
+
+            sessionStart.Should().Throw<AlreadyHasActiveSessionException>();
+        }
 
         [Test]
         public void Should_create_with_empty_test_session()

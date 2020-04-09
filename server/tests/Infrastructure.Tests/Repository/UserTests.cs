@@ -4,6 +4,8 @@ using FluentAssertions;
 using NUnit.Framework;
 using server.core.Domain;
 using server.core.Domain.Authentication;
+using server.core.Domain.Error;
+using server.core.Domain.Tasks;
 using server.core.Infrastructure;
 using server.core.Infrastructure.Error.AlreadyExists;
 using server.core.Infrastructure.Error.NotFound;
@@ -16,7 +18,7 @@ namespace Infrastructure.Tests.Repository
         [OneTimeSetUp]
         public async Task SetUp()
         {
-            _context = await DbTestFixture.GetContextAsync();
+            _context = await DbSetUpFixture.GetContextAsync();
             _unitOfWork = new UnitOfWork(_context);
 
             _personalInfo = new PersonalInfo(
@@ -46,7 +48,10 @@ namespace Infrastructure.Tests.Repository
             var user = await _unitOfWork.Users.FindUserAsync(_user.UserId);
 
             user.TestSessions.Should().BeEmpty();
-            user.CurrentSession.Should().BeEmpty();
+
+            Func<TestSession> sessionGet = () => user.CurrentSession;
+
+            sessionGet.Should().Throw<NoSessionsException>();
         }
 
         [Test]

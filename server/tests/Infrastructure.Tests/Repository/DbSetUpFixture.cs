@@ -10,7 +10,7 @@ using server.core.Infrastructure;
 namespace Infrastructure.Tests.Repository
 {
     [SetUpFixture]
-    public class DbTestFixture
+    public class DbSetUpFixture
     {
         public const string PostgresUser = "gto-db-user";
         public const string PostgresPassword = "gto-db-password";

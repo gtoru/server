@@ -39,7 +39,7 @@ namespace Domain.Tests.Tasks
         [Test]
         public void Should_fail_to_add_answer_to_non_existing_question()
         {
-            var session = TestSession.StartNew(_user, _quiz, _timeProvider);
+            var session = TestSession.CreateNew(_user, _quiz, _timeProvider);
 
             Action answer = () => session.Answer(10, "PANIC");
 
@@ -49,7 +49,7 @@ namespace Domain.Tests.Tasks
         [Test]
         public void Should_fail_to_answer_if_time_is_over()
         {
-            var session = TestSession.StartNew(_user, _quiz, _timeProvider);
+            var session = TestSession.CreateNew(_user, _quiz, _timeProvider);
 
             var checkTime = new DateTime(1971, 01, 01);
             _timeProvider.GetCurrent().Returns(checkTime);
@@ -60,20 +60,9 @@ namespace Domain.Tests.Tasks
         }
 
         [Test]
-        public void Should_lock_quiz_on_start()
-        {
-            var startTime = new DateTime(1970, 01, 01);
-            _timeProvider.GetCurrent().Returns(startTime);
-
-            var session = TestSession.StartNew(_user, _quiz, _timeProvider);
-
-            _quiz.Locked.Should().BeTrue();
-        }
-
-        [Test]
         public void Should_set_session_to_finished_if_answering_after_time_expired()
         {
-            var session = TestSession.StartNew(_user, _quiz, _timeProvider);
+            var session = TestSession.CreateNew(_user, _quiz, _timeProvider);
 
             var checkTime = new DateTime(1971, 01, 01);
             _timeProvider.GetCurrent().Returns(checkTime);
@@ -94,7 +83,7 @@ namespace Domain.Tests.Tasks
         [Test]
         public void Should_set_test_result_on_finish()
         {
-            var session = TestSession.StartNew(_user, _quiz, _timeProvider);
+            var session = TestSession.CreateNew(_user, _quiz, _timeProvider);
 
             session.Answer(0, "bar");
 
@@ -106,7 +95,7 @@ namespace Domain.Tests.Tasks
         [Test]
         public void Should_set_to_finished_on_finish()
         {
-            var session = TestSession.StartNew(_user, _quiz, _timeProvider);
+            var session = TestSession.CreateNew(_user, _quiz, _timeProvider);
 
             session.Finish();
 
@@ -116,7 +105,7 @@ namespace Domain.Tests.Tasks
         [Test]
         public void Should_start_new_session()
         {
-            var session = TestSession.StartNew(_user, _quiz, _timeProvider);
+            var session = TestSession.CreateNew(_user, _quiz, _timeProvider);
 
             session.Started.Should().Be(_startTime);
             session.Answers.Count.Should().Be(_quiz.Tasks.Count);
