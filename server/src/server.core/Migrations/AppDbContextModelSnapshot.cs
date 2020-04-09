@@ -177,7 +177,8 @@ namespace server.core.Migrations
 
                     b1.HasKey("UserId");
 
-                    b1.HasIndex("Address");
+                    b1.HasIndex("Address")
+                        .IsUnique();
 
                     b1.ToTable("Users");
 

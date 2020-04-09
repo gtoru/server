@@ -40,7 +40,7 @@ namespace server.core.Infrastructure
                 .OwnsOne(m => m.Email,
                     builder =>
                     {
-                        builder.HasIndex(m => m.Address);
+                        builder.HasIndex(m => m.Address).IsUnique();
                         builder.Property(m => m.IsVerified);
                     });
 

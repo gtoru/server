@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using server.core.Domain;
 using server.core.Domain.Storage;
+using server.core.Infrastructure.Error.AlreadyExists;
 using server.core.Infrastructure.Error.NotFound;
 
 namespace server.core.Infrastructure.Storage
@@ -42,6 +43,12 @@ namespace server.core.Infrastructure.Storage
 
         public async Task AddUserAsync(User user)
         {
+            var foundUser = await _dbContext.Users
+                .FirstOrDefaultAsync(u => u.Email.Address == user.Email.Address);
+
+            if (foundUser != null)
+                throw new UserAlreadyExistsException();
+
             await _dbContext.Users.AddAsync(user);
         }
     }
