@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using server.core.Domain.Tasks;
 
@@ -8,5 +10,7 @@ namespace server.core.Domain.Storage
     {
         Task AddQuizAsync(Quiz quiz);
         Task<Quiz> FindQuizAsync(Guid quizId);
+        IQueryable<Quiz> GetAllAsQueryable();
+        Task<List<Quiz>> GetAllAsync();
     }
 }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using server.core.Domain.Storage;
@@ -32,6 +34,16 @@ namespace server.core.Infrastructure.Storage
                 throw new TaskNotFoundException();
 
             return foundTask;
+        }
+
+        public IQueryable<VariantTask> GetAllAsQueryable()
+        {
+            return _dbContext.Tasks.AsQueryable();
+        }
+
+        public async Task<List<VariantTask>> GetAllAsync()
+        {
+            return await GetAllAsQueryable().ToListAsync();
         }
     }
 }

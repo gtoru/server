@@ -100,6 +100,14 @@ namespace Infrastructure.Tests.Repository
         }
 
         [Test]
+        public async Task Should_return_all_quizzes()
+        {
+            var quiz = await _unitOfWork.Quizzes.GetAllAsync();
+
+            quiz.Count.Should().Be(2);
+        }
+
+        [Test]
         public void Should_throw_when_quiz_not_found()
         {
             Func<Task> quizSearch = async () => await _unitOfWork.Quizzes.FindQuizAsync(Guid.NewGuid());

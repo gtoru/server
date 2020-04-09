@@ -12,19 +12,30 @@ namespace Infrastructure.Tests.Repository
     [TestFixture]
     public class TaskTests
     {
+        [SetUp]
+        public async Task SetUp()
+        {
+            _unitOfWork = await DbSetUpFixture.GetUnitOfWorkAsync();
+        }
+
+        [TearDown]
+        public async Task TearDown()
+        {
+            await _unitOfWork.SaveAsync();
+        }
+
         [OneTimeSetUp]
         public async Task OneTimeSetUp()
         {
-            var context = await DbSetUpFixture.GetContextAsync();
-            _unitOfWork = new UnitOfWork(context);
+            var unitOfWork = await DbSetUpFixture.GetUnitOfWorkAsync();
 
             _task = VariantTask.CreateNew(
                 Question,
                 Answer,
                 new List<string> {A, B, C});
 
-            await _unitOfWork.Tasks.AddTaskAsync(_task);
-            await _unitOfWork.SaveAsync();
+            await unitOfWork.Tasks.AddTaskAsync(_task);
+            await unitOfWork.SaveAsync();
         }
 
         private const string Question = "Foo";
@@ -41,6 +52,14 @@ namespace Infrastructure.Tests.Repository
             var foundTask = await _unitOfWork.Tasks.FindTaskAsync(_task.TaskId);
 
             foundTask.Should().BeEquivalentTo(_task);
+        }
+
+        [Test]
+        public async Task Should_return_all_tasks()
+        {
+            var tasks = await _unitOfWork.Tasks.GetAllAsync();
+
+            tasks.Count.Should().Be(5);
         }
 
         [Test]
