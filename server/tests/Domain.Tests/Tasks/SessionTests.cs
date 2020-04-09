@@ -22,7 +22,10 @@ namespace Domain.Tests.Tasks
                 VariantTask.CreateNew("baz", "foo", new List<string> {"foo", "bar"})
             };
 
-            _user = User.CreateNew("foo@bar.baz", "qwerty", new PersonalInfo());
+            _user = User.CreateNew(
+                "foo@bar.baz",
+                "qwerty",
+                new PersonalInfo("John Doe", DateTime.UtcNow, "", "", ""));
             _quiz = Quiz.CreateNew(_tasks);
             _timeProvider = Substitute.For<ITimeProvider>();
 

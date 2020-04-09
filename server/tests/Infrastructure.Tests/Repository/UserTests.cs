@@ -7,7 +7,6 @@ using server.core.Domain.Authentication;
 using server.core.Domain.Error;
 using server.core.Domain.Tasks;
 using server.core.Infrastructure;
-using server.core.Infrastructure.Error.AlreadyExists;
 using server.core.Infrastructure.Error.NotFound;
 
 namespace Infrastructure.Tests.Repository
@@ -52,16 +51,6 @@ namespace Infrastructure.Tests.Repository
             Func<TestSession> sessionGet = () => user.CurrentSession;
 
             sessionGet.Should().Throw<NoSessionsException>();
-        }
-
-        [Test]
-        public void Should_fail_to_add_existing_email()
-        {
-            var secondUser = User.CreateNew(Email, Password, _personalInfo);
-
-            Func<Task> secondUserAddition = async () => await _unitOfWork.Users.AddUserAsync(secondUser);
-
-            secondUserAddition.Should().Throw<UserAlreadyExistsException>();
         }
 
         [Test]

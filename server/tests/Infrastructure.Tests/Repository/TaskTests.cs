@@ -5,7 +5,6 @@ using FluentAssertions;
 using NUnit.Framework;
 using server.core.Domain.Tasks;
 using server.core.Infrastructure;
-using server.core.Infrastructure.Error.AlreadyExists;
 using server.core.Infrastructure.Error.NotFound;
 
 namespace Infrastructure.Tests.Repository
@@ -50,20 +49,6 @@ namespace Infrastructure.Tests.Repository
             var task = await _unitOfWork.Tasks.FindTaskAsync(_task.TaskId);
 
             task.CheckAnswer(Answer).Should().BeTrue();
-        }
-
-        [Test]
-        public void Should_throw_when_id_already_exists()
-        {
-            var duplicate = new VariantTask(
-                _task.TaskId,
-                Question,
-                Answer,
-                new List<string> {A, B, C});
-
-            Func<Task> taskAddition = async () => await _unitOfWork.Tasks.AddTaskAsync(duplicate);
-
-            taskAddition.Should().Throw<TaskAlreadyExistsException>();
         }
 
         [Test]

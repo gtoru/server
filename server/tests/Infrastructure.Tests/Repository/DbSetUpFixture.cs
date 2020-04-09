@@ -4,6 +4,7 @@ using DotNet.Testcontainers.Containers.Builders;
 using DotNet.Testcontainers.Containers.Modules;
 using DotNet.Testcontainers.Containers.WaitStrategies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using server.core.Infrastructure;
 
@@ -42,17 +43,30 @@ namespace Infrastructure.Tests.Repository
 
         public static async Task<AppDbContext> GetContextAsync()
         {
+            var logger = LoggerFactory.Create(builder =>
+            {
+                builder.AddFilter((category, level) =>
+                    category == DbLoggerCategory.Database.Command.Name
+                    && level == LogLevel.Information).AddDebug();
+            });
             var options = new DbContextOptionsBuilder<AppDbContext>()
                 .UseNpgsql($"Host={Environment.GetEnvironmentVariable("GTO_DB_HOST") ?? "localhost"};" +
                            $"Database={PostgresDb};" +
                            $"Username={PostgresUser};" +
                            $"Password={PostgresPassword}")
+                .UseLoggerFactory(logger)
                 .Options;
 
             var context = new AppDbContext(options);
             await context.Database.MigrateAsync();
 
             return context;
+        }
+
+        public static async Task<IUnitOfWork> GetUnitOfWorkAsync()
+        {
+            var context = await GetContextAsync();
+            return new UnitOfWork(context);
         }
     }
 }

@@ -5,7 +5,6 @@ using FluentAssertions;
 using NUnit.Framework;
 using server.core.Domain.Tasks;
 using server.core.Infrastructure;
-using server.core.Infrastructure.Error.AlreadyExists;
 using server.core.Infrastructure.Error.NotFound;
 
 namespace Infrastructure.Tests.Repository
@@ -13,6 +12,18 @@ namespace Infrastructure.Tests.Repository
     [TestFixture]
     public class QuizTests
     {
+        [SetUp]
+        public async Task SetUp()
+        {
+            _unitOfWork = await DbSetUpFixture.GetUnitOfWorkAsync();
+        }
+
+        [TearDown]
+        public async Task TearDown()
+        {
+            await _unitOfWork.SaveAsync();
+        }
+
         private VariantTask _firstTask;
         private VariantTask _secondTask;
         private Quiz _quiz;
@@ -35,17 +46,19 @@ namespace Infrastructure.Tests.Repository
 
             _quiz = Quiz.CreateNew(new List<VariantTask> {_firstTask, _secondTask});
 
-            var context = await DbSetUpFixture.GetContextAsync();
-            _unitOfWork = new UnitOfWork(context);
+            var unitOfWork = await DbSetUpFixture.GetUnitOfWorkAsync();
 
-            await _unitOfWork.Quizzes.AddQuizAsync(_quiz);
-            await _unitOfWork.SaveAsync();
+            await unitOfWork.Tasks.AddTaskAsync(_firstTask);
+            await unitOfWork.Tasks.AddTaskAsync(_secondTask);
+            await unitOfWork.Quizzes.AddQuizAsync(_quiz);
+            await unitOfWork.SaveAsync();
         }
 
         [Test]
         public async Task Should_be_able_to_create_quiz_with_same_tasks()
         {
-            var secondQuiz = Quiz.CreateNew(new List<VariantTask> {_firstTask});
+            var firstTask = await _unitOfWork.Tasks.FindTaskAsync(_firstTask.TaskId);
+            var secondQuiz = Quiz.CreateNew(new List<VariantTask> {firstTask});
 
             await _unitOfWork.Quizzes.AddQuizAsync(secondQuiz);
             await _unitOfWork.SaveAsync();
@@ -57,21 +70,15 @@ namespace Infrastructure.Tests.Repository
         }
 
         [Test]
-        public async Task Should_create_tasks_on_quiz_creation()
+        public void Should_create_tasks_on_quiz_creation()
         {
-            var firstTask = await _unitOfWork.Tasks.FindTaskAsync(_quiz.Tasks[0].TaskId);
-            var secondTask = await _unitOfWork.Tasks.FindTaskAsync(_quiz.Tasks[1].TaskId);
+            Func<Task> taskSearch = async () =>
+            {
+                await _unitOfWork.Tasks.FindTaskAsync(_quiz.Tasks[0].TaskId);
+                await _unitOfWork.Tasks.FindTaskAsync(_quiz.Tasks[1].TaskId);
+            };
 
-            firstTask.Should().BeEquivalentTo(_firstTask);
-            secondTask.Should().BeEquivalentTo(_secondTask);
-        }
-
-        [Test]
-        public async Task Should_find_created_quiz()
-        {
-            var foundQuiz = await _unitOfWork.Quizzes.FindQuizAsync(_quiz.QuizId);
-
-            foundQuiz.Should().BeEquivalentTo(_quiz);
+            taskSearch.Should().NotThrow<TaskNotFoundException>();
         }
 
         [Test]
@@ -90,14 +97,6 @@ namespace Infrastructure.Tests.Repository
 
             var secondTask = await _unitOfWork.Tasks.FindTaskAsync(quiz.Tasks[1].TaskId);
             secondTask.Locked.Should().BeTrue();
-        }
-
-        [Test]
-        public void Should_fail_to_add_existing_quiz()
-        {
-            Func<Task> quizAddition = async () => await _unitOfWork.Quizzes.AddQuizAsync(_quiz);
-
-            quizAddition.Should().Throw<QuizAlreadyExistsException>();
         }
 
         [Test]

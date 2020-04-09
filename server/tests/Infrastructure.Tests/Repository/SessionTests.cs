@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
-using FluentAssertions.Common;
 using NUnit.Framework;
 using server.core.Domain;
 using server.core.Domain.Tasks;
 using server.core.Infrastructure;
-using server.core.Infrastructure.Error.AlreadyExists;
 using server.core.Infrastructure.Error.NotFound;
 
 namespace Infrastructure.Tests.Repository
@@ -23,7 +21,10 @@ namespace Infrastructure.Tests.Repository
         public async Task OneTimeSetUp()
         {
             _unitOfWork = new UnitOfWork(await DbSetUpFixture.GetContextAsync());
-            _user = User.CreateNew("email", "password", new PersonalInfo());
+            _user = User.CreateNew(
+                "email",
+                "password",
+                new PersonalInfo("John Doe", DateTime.UtcNow, "", "", ""));
             _quiz = Quiz.CreateNew(
                 new List<VariantTask>
                 {
@@ -43,14 +44,13 @@ namespace Infrastructure.Tests.Repository
             var quiz = await _unitOfWork.Quizzes.FindQuizAsync(_quiz.QuizId);
 
             user.StartNewSession(quiz);
-
             await _unitOfWork.SaveAsync();
-            var session = await _unitOfWork.TestSessions.FindTestSessionAsync(user.CurrentSession.SessionId);
+            var foundSession = await _unitOfWork.TestSessions.FindTestSessionAsync(user.CurrentSession.SessionId);
 
-            session.Quiz.Should().BeEquivalentTo(quiz);
-            session.UserId.Should().Be(user.UserId);
-            session.PossibleResult.Should().Be(2);
-            session.IsFinished.Should().BeFalse();
+            foundSession.Quiz.Should().BeEquivalentTo(quiz);
+            foundSession.UserId.Should().Be(user.UserId);
+            foundSession.PossibleResult.Should().Be(2);
+            foundSession.IsFinished.Should().BeFalse();
         }
 
         [Test]
@@ -67,14 +67,6 @@ namespace Infrastructure.Tests.Repository
             Func<Task> sessionSearch = async () => await _unitOfWork.TestSessions.FindTestSessionAsync(Guid.NewGuid());
 
             sessionSearch.Should().Throw<SessionNotFoundException>();
-        }
-
-        [Test]
-        public void Should_throw_when_trying_to_add_existing_session()
-        {
-            Func<Task> addition = async () => await _unitOfWork.TestSessions.AddTestSessionAsync(_user.CurrentSession);
-
-            addition.Should().Throw<SessionAlreadyExistsException>();
         }
     }
 }
