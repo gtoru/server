@@ -5,6 +5,8 @@ using server.core.Domain.Authentication;
 using server.core.Domain.Error;
 using server.core.Domain.Tasks;
 
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+
 namespace server.core.Domain
 {
     public class User
@@ -18,7 +20,6 @@ namespace server.core.Domain
             Password = password;
             Email = email;
             PersonalInfo = personalInfo;
-            UserId = Guid.NewGuid();
             AccessLevel = AccessLevel.User;
             TestSessions = new List<TestSession>();
         }
@@ -33,12 +34,13 @@ namespace server.core.Domain
             TestSessions = new List<TestSession>();
         }
 
-        public Password Password { get; }
-        public Email Email { get; }
-        public Guid UserId { get; }
-        public PersonalInfo PersonalInfo { get; }
+        public Password Password { get; private set; }
+        public Email Email { get; private set; }
+        public Guid UserId { get; private set; }
+        public PersonalInfo PersonalInfo { get; private set; }
         public AccessLevel AccessLevel { get; private set; }
-        public List<TestSession> TestSessions { get; set; }
+        public List<TestSession> TestSessions { get; private set; }
+
         public TestSession CurrentSession
         {
             get
@@ -48,6 +50,7 @@ namespace server.core.Domain
                 return TestSessions.Last();
             }
         }
+
         public static User CreateNew(string email, string password, PersonalInfo personalInfo)
         {
             var hashedPassword = Password.Create(HashAlgorithm.BCrypt, password);

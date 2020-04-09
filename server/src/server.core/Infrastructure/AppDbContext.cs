@@ -129,7 +129,7 @@ namespace server.core.Infrastructure
                 .Property(m => m.TimeProvider)
                 .HasConversion(
                     t => "UTC",
-                    t => new UtcTimeProvider());
+                    t => UtcTimeProvider.Instance);
 
             entityTypeBuilder
                 .HasOne(m => m.User)
@@ -148,7 +148,7 @@ namespace server.core.Infrastructure
 
             entityTypeBuilder
                 .HasOne(m => m.Task)
-                .WithMany()
+                .WithMany(m => m.Quizzes)
                 .HasForeignKey(m => m.TaskId);
         }
     }

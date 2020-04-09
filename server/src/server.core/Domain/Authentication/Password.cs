@@ -1,5 +1,7 @@
 using server.core.Domain.Error;
 
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+
 namespace server.core.Domain.Authentication
 {
     public class Password
@@ -8,14 +10,14 @@ namespace server.core.Domain.Authentication
         {
         }
 
-        public Password(HashAlgorithm hashAlgorithm, string hashedPassword)
+        private Password(HashAlgorithm hashAlgorithm, string hashedPassword)
         {
             HashAlgorithm = hashAlgorithm;
             HashedPassword = hashedPassword;
         }
 
-        public HashAlgorithm HashAlgorithm { get; }
-        public string HashedPassword { get; }
+        public HashAlgorithm HashAlgorithm { get; private set; }
+        public string HashedPassword { get; private set; }
 
         public static Password Create(HashAlgorithm hashAlgorithm, string password)
         {

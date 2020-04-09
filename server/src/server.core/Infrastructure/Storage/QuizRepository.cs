@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using server.core.Domain.Storage;
 using server.core.Domain.Tasks;
-using server.core.Infrastructure.Error.AlreadyExists;
 using server.core.Infrastructure.Error.NotFound;
 
 namespace server.core.Infrastructure.Storage
@@ -18,17 +18,15 @@ namespace server.core.Infrastructure.Storage
 
         public async Task AddQuizAsync(Quiz quiz)
         {
-            var foundQuiz = await _dbContext.Quizzes.FindAsync(quiz.QuizId);
-
-            if (foundQuiz != null)
-                throw new QuizAlreadyExistsException();
-
             await _dbContext.Quizzes.AddAsync(quiz);
         }
 
         public async Task<Quiz> FindQuizAsync(Guid quizId)
         {
-            var foundQuiz = await _dbContext.Quizzes.FindAsync(quizId);
+            var foundQuiz = await _dbContext.Quizzes
+                .Include(m => m.Tasks)
+                .ThenInclude(m => m.Task)
+                .FirstOrDefaultAsync(m => m.QuizId == quizId);
 
             if (foundQuiz == null)
                 throw new QuizNotFoundException();

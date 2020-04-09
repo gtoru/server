@@ -1,41 +1,43 @@
 using System;
 using System.Collections.Generic;
+using server.core.Domain.Tasks.Helpers;
+
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 
 namespace server.core.Domain.Tasks
 {
     public class VariantTask
     {
-        public VariantTask()
+        private VariantTask()
         {
         }
 
-        public VariantTask(
-            Guid taskId,
+        private VariantTask(
             string question,
             string answer,
             List<string> variants)
         {
-            TaskId = taskId;
             Question = question;
             Answer = answer;
             Variants = variants;
         }
 
-        public Guid TaskId { get; set; }
+        public Guid TaskId { get; private set; }
 
-        public string Question { get; set; }
+        public string Question { get; private set; }
 
-        public string Answer { get; set; }
+        public string Answer { get; private set; }
 
-        public List<string> Variants { get; set; }
+        public List<string> Variants { get; private set; }
 
-        public bool Locked { get; set; }
+        public bool Locked { get; private set; }
+
+        public List<QuizTask> Quizzes { get; private set; } = new List<QuizTask>();
 
         public static VariantTask CreateNew(string question, string answer, List<string> variants)
         {
-            var id = Guid.NewGuid();
             return new VariantTask(
-                id,
                 question,
                 answer,
                 variants);

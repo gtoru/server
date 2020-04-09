@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using server.core.Domain.Error;
 using server.core.Domain.Misc;
 
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+
 namespace server.core.Domain.Tasks
 {
     public class TestSession
     {
         private static readonly TimeSpan TimeToComplete = TimeSpan.FromMinutes(30);
 
-        public TestSession()
+        private TestSession()
         {
         }
 
-        public TestSession(
-            Guid sessionId,
+        private TestSession(
             DateTime started,
             bool isFinished,
             int result,
@@ -25,7 +27,6 @@ namespace server.core.Domain.Tasks
             ITimeProvider timeProvider)
         {
             TimeProvider = timeProvider;
-            SessionId = sessionId;
             Started = started;
             IsFinished = isFinished;
             Result = result;
@@ -36,21 +37,19 @@ namespace server.core.Domain.Tasks
             Answers = answers;
         }
 
-        public ITimeProvider TimeProvider { get; set; }
-        public Guid SessionId { get; set; }
-        public DateTime Started { get; set; }
-        public bool IsFinished { get; set; }
-        public int Result { get; set; }
-        public int PossibleResult { get; set; }
-        public Quiz Quiz { get; set; }
-        public User User { get; set; }
-        public Guid UserId { get; set; }
-        public List<string> Answers { get; set; }
+        public ITimeProvider TimeProvider { get; private set; }
+        public Guid SessionId { get; private set; }
+        public DateTime Started { get; private set; }
+        public bool IsFinished { get; private set; }
+        public int Result { get; private set; }
+        public int PossibleResult { get; private set; }
+        public Quiz Quiz { get; private set; }
+        public User User { get; private set; }
+        public Guid UserId { get; private set; }
+        public List<string> Answers { get; private set; }
 
         public static TestSession CreateNew(User user, Quiz quiz, ITimeProvider timeProvider = null)
         {
-            var id = Guid.NewGuid();
-
             timeProvider ??= new UtcTimeProvider();
 
             var possibleResult = quiz.Tasks.Count;
@@ -63,7 +62,6 @@ namespace server.core.Domain.Tasks
             var started = timeProvider.GetCurrent();
 
             return new TestSession(
-                id,
                 started,
                 false,
                 0,

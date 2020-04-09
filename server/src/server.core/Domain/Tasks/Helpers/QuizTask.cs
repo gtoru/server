@@ -1,5 +1,7 @@
 using System;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+
 namespace server.core.Domain.Tasks.Helpers
 {
     /// <summary>

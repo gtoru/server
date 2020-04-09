@@ -1,43 +1,50 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using server.core.Domain.Error;
 using server.core.Domain.Tasks.Helpers;
+
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 
 namespace server.core.Domain.Tasks
 {
     public class Quiz
     {
-        public Quiz()
+        private Quiz()
         {
         }
 
-        public Quiz(Guid quizId, List<VariantTask> tasks)
+        private Quiz(List<QuizTask> tasks)
         {
-            QuizId = quizId;
-            Tasks = tasks.Select(t => new QuizTask
-            {
-                Quiz = this,
-                QuizId = quizId,
-                Task = t,
-                TaskId = t.TaskId
-            }).ToList();
+            Tasks = tasks;
         }
 
-        public Guid QuizId { get; set; }
+        public Guid QuizId { get; private set; }
 
-        public List<QuizTask> Tasks { get; set; }
+        public List<QuizTask> Tasks { get; private set; } = new List<QuizTask>();
 
-        public bool Locked { get; set; }
+        public bool Locked { get; private set; }
 
         public static Quiz CreateNew(List<VariantTask> tasks)
         {
             if (tasks.Count == 0)
                 throw new EmptyTaskListException();
 
-            return new Quiz(
-                Guid.NewGuid(),
-                tasks);
+            var quiz = new Quiz();
+
+            foreach (var task in tasks)
+            {
+                var quizTask = new QuizTask
+                {
+                    Quiz = quiz,
+                    Task = task
+                };
+
+                quiz.Tasks.Add(quizTask);
+                task.Quizzes.Add(quizTask);
+            }
+
+            return quiz;
         }
 
         public void Lock()
