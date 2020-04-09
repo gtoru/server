@@ -8,7 +8,7 @@ namespace server.core.Api.Controllers.Health
             Ready
         }
 
-        private readonly object sync = new object();
+        private readonly object _sync = new object();
 
         private Status _current;
 
@@ -21,14 +21,14 @@ namespace server.core.Api.Controllers.Health
         {
             get
             {
-                lock (sync)
+                lock (_sync)
                 {
                     return _current;
                 }
             }
             set
             {
-                lock (sync)
+                lock (_sync)
                 {
                     _current = value;
                 }
