@@ -49,6 +49,17 @@ namespace server.core
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<IAuthenticator, JwtAuthenticator>();
             services.AddSingleton<IAuthorizationHandler, AccessLevelHandler>();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("localhost", builder =>
+                {
+                    builder
+                        .SetIsOriginAllowed(_ => true)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
             services.AddApiVersioning(options =>
             {
                 options.ReportApiVersions = true;
@@ -137,7 +148,11 @@ namespace server.core
             AppDbContext dbContext,
             StatusReporter statusReporter)
         {
-            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseCors("localhost");
+            }
             dbContext.Database.Migrate();
 
             CreateAdminUser(unitOfWork);
