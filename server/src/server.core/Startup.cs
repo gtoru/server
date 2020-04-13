@@ -49,7 +49,6 @@ namespace server.core
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<IAuthenticator, JwtAuthenticator>();
             services.AddSingleton<IAuthorizationHandler, AccessLevelHandler>();
-            services.AddCors();
             services.AddApiVersioning(options =>
             {
                 options.ReportApiVersions = true;
