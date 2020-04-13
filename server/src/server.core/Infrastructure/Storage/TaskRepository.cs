@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using server.core.Domain.Storage;
@@ -36,11 +37,6 @@ namespace server.core.Infrastructure.Storage
             return foundTask;
         }
 
-        public IQueryable<VariantTask> GetAllAsQueryable()
-        {
-            return _dbContext.Tasks.AsQueryable();
-        }
-
         public IAsyncEnumerable<VariantTask> GetAllEnumerableAsync()
         {
             return _dbContext.Tasks.AsAsyncEnumerable();
@@ -48,7 +44,12 @@ namespace server.core.Infrastructure.Storage
 
         public async Task<List<VariantTask>> GetAllAsync()
         {
-            return await GetAllAsQueryable().ToListAsync();
+            return await _dbContext.Tasks.ToListAsync();
+        }
+
+        public async Task<List<VariantTask>> GetBySpecAsync(Expression<Func<VariantTask, bool>> spec)
+        {
+            return await _dbContext.Tasks.Where(spec).ToListAsync();
         }
     }
 }

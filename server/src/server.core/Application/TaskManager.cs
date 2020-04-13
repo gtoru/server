@@ -25,12 +25,30 @@ namespace server.core.Application
             return task;
         }
 
+        public static async Task<VariantTask> GetTaskAsync(
+            IUnitOfWork unitOfWork,
+            Guid taskId)
+        {
+            var task = await unitOfWork.Tasks.FindTaskAsync(taskId);
+
+            return task;
+        }
+
+        public static async Task<Quiz> GetQuizAsync(
+            IUnitOfWork unitOfWork,
+            Guid quizId)
+        {
+            var quiz = await unitOfWork.Quizzes.FindQuizAsync(quizId);
+
+            return quiz;
+        }
+
         public static async Task<Quiz> AddQuizAsync(
             IUnitOfWork unitOfWork,
             IEnumerable<Guid> taskIds)
         {
             var tasks =
-                await Task.WhenAll(taskIds.Select(async id => await unitOfWork.Tasks.FindTaskAsync(id)));
+                await unitOfWork.Tasks.GetBySpecAsync(t => taskIds.Contains(t.TaskId));
 
             var quiz = Quiz.CreateNew(tasks.ToList());
 
@@ -39,24 +57,14 @@ namespace server.core.Application
             return quiz;
         }
 
-        public static IQueryable<Quiz> GetAllQuizzes(IUnitOfWork unitOfWork)
+        public static async Task<IEnumerable<Quiz>> GetAllQuizzesAsync(IUnitOfWork unitOfWork)
         {
-            return unitOfWork.Quizzes.GetAllAsQueryable();
+            return await unitOfWork.Quizzes.GetAllAsync();
         }
 
-        public static IAsyncEnumerable<Quiz> GetAllQuizzesEnumerableAsync(IUnitOfWork unitOfWork)
+        public static async Task<IEnumerable<VariantTask>> GetAllTasksAsync(IUnitOfWork unitOfWork)
         {
-            return unitOfWork.Quizzes.GetAllEnumerableAsync();
-        }
-
-        public static IQueryable<VariantTask> GetAllTasks(IUnitOfWork unitOfWork)
-        {
-            return unitOfWork.Tasks.GetAllAsQueryable();
-        }
-
-        public static IAsyncEnumerable<VariantTask> GetAllTasksEnumerableAsync(IUnitOfWork unitOfWork)
-        {
-            return unitOfWork.Tasks.GetAllEnumerableAsync();
+            return await unitOfWork.Tasks.GetAllAsync();
         }
     }
 }

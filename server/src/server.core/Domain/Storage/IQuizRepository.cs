@@ -10,8 +10,6 @@ namespace server.core.Domain.Storage
     {
         Task AddQuizAsync(Quiz quiz);
         Task<Quiz> FindQuizAsync(Guid quizId);
-        IQueryable<Quiz> GetAllAsQueryable();
-        IAsyncEnumerable<Quiz> GetAllEnumerableAsync();
         Task<List<Quiz>> GetAllAsync();
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using server.core.Domain.Tasks;
 
@@ -10,8 +11,7 @@ namespace server.core.Domain.Storage
     {
         Task AddTaskAsync(VariantTask task);
         Task<VariantTask> FindTaskAsync(Guid taskId);
-        IQueryable<VariantTask> GetAllAsQueryable();
-        IAsyncEnumerable<VariantTask> GetAllEnumerableAsync();
         Task<List<VariantTask>> GetAllAsync();
+        Task<List<VariantTask>> GetBySpecAsync(Expression<Func<VariantTask, bool>> spec);
     }
 }
