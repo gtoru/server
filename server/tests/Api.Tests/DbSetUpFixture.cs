@@ -4,6 +4,7 @@ using DotNet.Testcontainers.Containers.Builders;
 using DotNet.Testcontainers.Containers.Modules;
 using DotNet.Testcontainers.Containers.WaitStrategies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace Api.Tests
@@ -41,10 +42,17 @@ namespace Api.Tests
 
         public static void ConfigureContext(DbContextOptionsBuilder builder)
         {
+            var loggerFactory = LoggerFactory.Create(options =>
+            {
+                options.AddConsole();
+                options.AddDebug();
+            });
+
             builder.UseNpgsql($"Host={Environment.GetEnvironmentVariable("GTO_DB_HOST") ?? "localhost"};" +
                               $"Database={PostgresDb};" +
                               $"Username={PostgresUser};" +
-                              $"Password={PostgresPassword}");
+                              $"Password={PostgresPassword}")
+                .UseLoggerFactory(loggerFactory);
         }
     }
 }

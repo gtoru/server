@@ -52,11 +52,13 @@ namespace Application.Tests
             _unitOfWork.Tasks.Returns(Substitute.For<ITaskRepository>());
             _unitOfWork.Quizzes.Returns(Substitute.For<IQuizRepository>());
 
-            _unitOfWork.Tasks.FindTaskAsync(Arg.Is(id)).Returns(task);
+            _unitOfWork.Tasks
+                .GetBySpecAsync(Arg.Any<Expression<Func<VariantTask, bool>>>())
+                .Returns(new List<VariantTask>{task});
 
             var addedQuiz = await TaskManager.AddQuizAsync(_unitOfWork, new[] {id});
 
-            await _unitOfWork.Tasks.Received(1).FindTaskAsync(Arg.Is(id));
+            await _unitOfWork.Tasks.Received(1).GetBySpecAsync(Arg.Any<Expression<Func<VariantTask, bool>>>());
             await _unitOfWork.Quizzes.Received(1).AddQuizAsync(Arg.Any<Quiz>());
             addedQuiz.Tasks.Single().Task.Should().Be(task);
         }
