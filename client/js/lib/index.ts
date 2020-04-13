@@ -1,3 +1,5 @@
+export { TaskClient } from "./task/taskclient";
+export { Question, Answer, Task, TaskId } from "./task/models";
 export { AuthClient } from "./auth/authclient";
 export {
     User,
