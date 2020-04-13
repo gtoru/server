@@ -26,7 +26,7 @@ export class TaskResponse {
     public variants: string[];
     public static toModel(task: TaskResponse): Task {
         return {
-            asnwer: task.answer,
+            answer: task.answer,
             question: task.question,
             taskId: task.taskId,
             variants: task.variants,

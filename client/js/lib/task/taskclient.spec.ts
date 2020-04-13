@@ -35,7 +35,7 @@ describe("task client", () => {
 
         expect(taskResponse.responseCode).toBe(200);
         expect(taskResponse.errorInfo).toBeUndefined();
-        expect(taskResponse.responseData.asnwer).toBe(response.answer);
+        expect(taskResponse.responseData.answer).toBe(response.answer);
         expect(taskResponse.responseData.question).toBe(response.question);
         expect(taskResponse.responseData.variants).toStrictEqual(
             response.variants
@@ -73,7 +73,7 @@ describe("task client", () => {
 
     it("creates new task", async () => {
         const task: Task = {
-            asnwer: "42",
+            answer: "42",
             question: "Meaning of life",
             taskId: "123",
             variants: ["Love", "Death", "42"],

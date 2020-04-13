@@ -7,6 +7,6 @@ export type TaskId = string;
 export class Task {
     public taskId: TaskId;
     public question: Question;
-    public asnwer: Answer;
+    public answer: Answer;
     public variants: Answer[];
 }

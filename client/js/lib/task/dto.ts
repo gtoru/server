@@ -7,7 +7,7 @@ export class CreateTaskRequest {
 
     public static fromModel(task: Task): CreateTaskRequest {
         return {
-            answer: task.asnwer,
+            answer: task.answer,
             question: task.question,
             variants: task.variants,
         };
@@ -25,7 +25,7 @@ export class GetTaskResponse {
     public variants: string[];
     public static toModel(task: GetTaskResponse): Task {
         return {
-            asnwer: task.answer,
+            answer: task.answer,
             question: task.question,
             taskId: task.taskId,
             variants: task.variants,
