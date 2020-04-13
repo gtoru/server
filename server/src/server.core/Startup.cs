@@ -64,8 +64,13 @@ namespace server.core
                 var database = Configuration["DB:Database"];
                 var userName = Configuration["DB:Username"];
                 var password = Configuration["DB:Password"];
+                var loggerFactory = LoggerFactory.Create(logger =>
+                {
+                    logger.AddConsole();
+                });
                 options.UseNpgsql(
-                    $"Host={host};Port={port};Database={database};Username={userName};Password={password}");
+                    $"Host={host};Port={port};Database={database};Username={userName};Password={password}")
+                    .UseLoggerFactory(loggerFactory);
             });
             services.AddAuthentication(options =>
             {
