@@ -39,7 +39,7 @@ jobs:
 
   integration_tests:
     runs-on: ubuntu-latest
-    needs: [esling-job, run-tests, build]
+    needs: [eslint-job, run-tests, build]
     name: Integration tests
     steps:
       - uses: actions/checkout@v2
