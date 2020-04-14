@@ -71,7 +71,8 @@ namespace server.core.Api.Controllers.Tasks
                         {
                             TaskId = t.TaskId,
                             Question = t.Task.Question,
-                            Variants = t.Task.Variants
+                            Variants = t.Task.Variants,
+                            Answer = t.Task.Answer
                         }).ToList()
                 };
                 return Ok(result);
