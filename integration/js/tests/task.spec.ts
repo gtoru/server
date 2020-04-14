@@ -44,6 +44,10 @@ async function createAndAuthenticateNonAdmin(): Promise<AuthToken> {
     return authentication.responseData;
 }
 
+function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 beforeAll(async () => {
     token = await authenticateAdmin();
 });
@@ -59,7 +63,7 @@ describe("task client", () => {
         const taskCreation = await client.createTaskAsync(task, token);
         const taskId = taskCreation.responseData;
 
-        setTimeout(async () => {
+        sleep(1000).then(async () => {
             const foundTask = await client.getTaskAsync(taskId, token);
 
             expect(foundTask.responseCode).toBe(200);
@@ -68,14 +72,15 @@ describe("task client", () => {
             expect(foundTask.responseData.variants).toStrictEqual(
                 task.variants
             );
-        }, 1000);
+        });
     });
 
     it("finds all created tasks", async () => {
-        const foundTasks = await client.getAllTasksAsync(token);
-
-        expect(foundTasks.responseCode).toBe(200);
-        expect(foundTasks.responseData).toHaveLength(2);
+        sleep(1000).then(async () => {
+            const foundTasks = await client.getAllTasksAsync(token);
+            expect(foundTasks.responseCode).toBe(200);
+            expect(foundTasks.responseData).toHaveLength(2)
+        });
     });
 
     it("gets 403 if not admin", async () => {
