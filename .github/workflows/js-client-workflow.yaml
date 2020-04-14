@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - "client/js/**/*"
+  pull_request:
+    branches:
+      - master
 
 jobs:
   eslint-job:
