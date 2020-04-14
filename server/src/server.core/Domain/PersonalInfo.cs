@@ -1,10 +1,12 @@
 using System;
 
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+
 namespace server.core.Domain
 {
     public class PersonalInfo
     {
-        public PersonalInfo()
+        private PersonalInfo()
         {
         }
 
@@ -22,10 +24,10 @@ namespace server.core.Domain
             Employer = employer;
         }
 
-        public string Name { get; set; }
-        public DateTime Birthday { get; set; }
-        public string Address { get; set; }
-        public string Occupation { get; set; }
-        public string Employer { get; set; }
+        public string Name { get; private set; }
+        public DateTime Birthday { get; private set; }
+        public string Address { get; private set; }
+        public string Occupation { get; private set; }
+        public string Employer { get; private set; }
     }
 }

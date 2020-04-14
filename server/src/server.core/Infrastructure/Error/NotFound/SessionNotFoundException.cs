@@ -1,4 +1,4 @@
-namespace server.core.Infrastructure.Error
+namespace server.core.Infrastructure.Error.NotFound
 {
     public class SessionNotFoundException : InfrastructureException
     {

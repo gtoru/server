@@ -1,5 +1,7 @@
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
 namespace Api.Tests.Helpers
@@ -12,6 +14,12 @@ namespace Api.Tests.Helpers
                 JsonConvert.SerializeObject(value),
                 Encoding.UTF8,
                 "application/json");
+        }
+
+        public static async Task<T> GetJsonAsync<T>(this HttpResponseMessage response)
+        {
+            return
+                JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync());
         }
     }
 }

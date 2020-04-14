@@ -2,20 +2,10 @@ import * as axios from "axios";
 import { AuthToken, User, Password, Email, SessionInfo } from "./models";
 import { Response } from "../common/models";
 import { UserDto, SessionInfoDto } from "./dto";
+import * as r from "../common/request";
+import { ClientBase } from "../common/client";
 
-export class AuthClient {
-    private rest: axios.AxiosInstance;
-
-    /**
-     * Creates client to preform authentication tasks
-     * @param serverUrl Base URL of GTO-RU server
-     */
-    public constructor(serverUrl: string) {
-        this.rest = axios.default.create({
-            baseURL: serverUrl,
-        });
-    }
-
+export class AuthClient extends ClientBase {
     /**
      * Registers user with specified login and email
      * @param user User object with user info
@@ -33,7 +23,7 @@ export class AuthClient {
                     timeout: timeout,
                 }
             );
-        return await this.tryMakeRequestAsync(request, () => undefined);
+        return await r.tryMakeRequestAsync(request, () => undefined);
     }
 
     /**
@@ -59,7 +49,7 @@ export class AuthClient {
                     timeout: timeout,
                 }
             );
-        return await this.tryMakeRequestAsync(request, (data) => String(data));
+        return await r.tryMakeRequestAsync(request, (data) => String(data));
     }
 
     public async getSessionInfoAsync(
@@ -74,27 +64,8 @@ export class AuthClient {
                 },
             });
 
-        return await this.tryMakeRequestAsync(request, (data) =>
+        return await r.tryMakeRequestAsync(request, (data) =>
             SessionInfoDto.toModel(data)
         );
-    }
-
-    private async tryMakeRequestAsync<TDto, TResult>(
-        request: () => Promise<axios.AxiosResponse<TDto>>,
-        responseExtractor: (data: TDto) => TResult
-    ): Promise<Response<TResult>> {
-        try {
-            const response = await request();
-            return new Response<TResult>(
-                response.status,
-                responseExtractor(response.data)
-            );
-        } catch (err) {
-            const error: axios.AxiosError = err;
-            const errorInfo = String(error.response?.data);
-            const statusCode: number = error.response?.status;
-
-            return new Response<TResult>(statusCode, undefined, errorInfo);
-        }
     }
 }

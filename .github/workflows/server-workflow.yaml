@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - "server/**/*"
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
@@ -17,7 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: build and run tests in Docker
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "3.1.201"
+      - name: build and run tests
         run: yarn dtest
 
   integration_tests:
@@ -35,10 +41,10 @@ jobs:
   push_image:
     runs-on: ubuntu-latest
     name: Publish Docker image
+    if: github.ref == 'refs/heads/master'
     needs: [build, unit-tests, integration_tests]
     steps:
       - uses: actions/checkout@v2
-        if: ${{ github.ref }} == 'master'
       - name: Docker Login
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u gtoru --password-stdin
       - name: Build Historical Image

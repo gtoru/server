@@ -13,7 +13,7 @@ using NUnit.Framework;
 using server.core;
 using server.core.Api.Dto;
 
-namespace Api.Tests.Authentication
+namespace Api.Tests
 {
     [TestFixture]
     public class AuthenticationTest
@@ -21,7 +21,7 @@ namespace Api.Tests.Authentication
         [SetUp]
         public void SetUp()
         {
-            _factory = new InMemoryWebApplicationFactory();
+            _factory = new LocalWebApplicationFactory();
             Client = _factory.CreateClient();
         }
 
@@ -31,8 +31,6 @@ namespace Api.Tests.Authentication
             _factory.Dispose();
         }
 
-        private const string Email = "foo@bar.baz";
-        private const string Password = "qwerty";
         private const string BaseRoute = "api/auth/v1";
         private const string Address = "foo st.";
         private readonly DateTime _birthDay = DateTime.Now;
@@ -45,12 +43,12 @@ namespace Api.Tests.Authentication
         private const string SessionInfoRoute = BaseRoute + "/sessions/my";
         private HttpClient Client { get; set; }
 
-        private async Task<HttpResponseMessage> RegisterUserAsync()
+        private async Task<HttpResponseMessage> RegisterUserAsync(string email, string password)
         {
             var registrationRequest = new RegistrationRequest
             {
-                Email = Email,
-                Password = Password,
+                Email = email,
+                Password = password,
                 Address = Address,
                 Birthday = _birthDay,
                 Employer = Employer,
@@ -63,14 +61,14 @@ namespace Api.Tests.Authentication
                 registrationRequest.ToJsonContent());
         }
 
-        private async Task<string> RegisterAndAuthenticateAsync()
+        private async Task<string> RegisterAndAuthenticateAsync(string email, string password)
         {
-            await RegisterUserAsync();
+            await RegisterUserAsync(email, password);
 
             var authenticationRequest = new AuthenticationRequest
             {
-                Email = Email,
-                Password = Password
+                Email = email,
+                Password = password
             };
 
             var authenticationResult = await Client.PostAsync(
@@ -83,12 +81,14 @@ namespace Api.Tests.Authentication
         [Test]
         public async Task Should_authenticate_registered_user()
         {
-            await RegisterUserAsync();
+            var email = "abc@gmail.com";
+            var password = "123";
+            await RegisterUserAsync(email, password);
 
             var authenticationRequest = new AuthenticationRequest
             {
-                Email = Email,
-                Password = Password
+                Email = email,
+                Password = password
             };
 
             var authenticationResult = await Client.PostAsync(
@@ -122,7 +122,10 @@ namespace Api.Tests.Authentication
         [Test]
         public async Task Should_get_session_info()
         {
-            var token = await RegisterAndAuthenticateAsync();
+            var email = "abc@mail.ru";
+            var password = "qwertyuiop";
+
+            var token = await RegisterAndAuthenticateAsync(email, password);
             Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
                 "Bearer",
                 token);
@@ -134,7 +137,7 @@ namespace Api.Tests.Authentication
             var responseString = await sessionResponse.Content.ReadAsStringAsync();
             var sessionInfo = JsonConvert.DeserializeObject<SessionInfo>(responseString);
 
-            sessionInfo.Email.Should().BeEquivalentTo(Email);
+            sessionInfo.Email.Should().BeEquivalentTo(email);
             sessionInfo.PersonalInfo.Address.Should().BeEquivalentTo(Address);
             sessionInfo.PersonalInfo.Birthday.Should().BeSameDateAs(_birthDay);
             sessionInfo.PersonalInfo.Employer.Should().Be(Employer);
@@ -145,10 +148,11 @@ namespace Api.Tests.Authentication
         [Test]
         public async Task Should_not_authenticate_non_existing_user()
         {
+            var password = "qwe";
             var request = new AuthenticationRequest
             {
                 Email = "non@exist.com",
-                Password = Password
+                Password = password
             };
 
             var response = await Client.PostAsync(
@@ -161,10 +165,12 @@ namespace Api.Tests.Authentication
         [Test]
         public async Task Should_not_authenticate_with_wrong_password()
         {
+            var email = "rainbow@dash.fun";
+            var password = "1337";
             var registrationRequest = new RegistrationRequest
             {
-                Email = Email,
-                Password = Password,
+                Email = email,
+                Password = password,
                 Address = Address,
                 Birthday = _birthDay,
                 Employer = Employer,
@@ -174,7 +180,7 @@ namespace Api.Tests.Authentication
 
             var authenticationRequest = new AuthenticationRequest
             {
-                Email = Email,
+                Email = email,
                 Password = "123"
             };
 
@@ -192,7 +198,7 @@ namespace Api.Tests.Authentication
         [Test]
         public async Task Should_register_user()
         {
-            var registrationResult = await RegisterUserAsync();
+            var registrationResult = await RegisterUserAsync("testing@mail.com", "98765");
 
             registrationResult.StatusCode.Should().Be(HttpStatusCode.OK);
         }

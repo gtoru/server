@@ -8,7 +8,7 @@ using server.core.Application;
 using server.core.Domain;
 using server.core.Domain.Storage;
 using server.core.Infrastructure;
-using server.core.Infrastructure.Error;
+using server.core.Infrastructure.Error.AlreadyExists;
 
 namespace Application.Tests
 {

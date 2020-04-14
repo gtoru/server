@@ -1,4 +1,13 @@
-import { AuthClient, User, PersonalInfo, AuthToken, SessionInfo } from "../../../client/js/lib/index";
+import {
+    AuthClient,
+    User,
+    PersonalInfo,
+    AuthToken,
+} from "../../../client/js/lib/index";
+
+function getClient(): AuthClient {
+    return new AuthClient("http://localhost:8080");
+}
 
 describe("authentication", () => {
     const email = "foo@bar.baz";
@@ -31,7 +40,11 @@ describe("authentication", () => {
 
     it("authenticates registered user", async () => {
         const client = getClient();
-        const authenticationResponse = await client.authenticateAsync(email, password, 3000);
+        const authenticationResponse = await client.authenticateAsync(
+            email,
+            password,
+            3000
+        );
 
         expect(authenticationResponse.responseCode).toBe(200);
         expect(authenticationResponse.errorInfo).toBeUndefined();
@@ -43,12 +56,17 @@ describe("authentication", () => {
 
     it("gets session info", async () => {
         const client = getClient();
-        const sessionInfoResponse = await client.getSessionInfoAsync(token, 3000);
+        const sessionInfoResponse = await client.getSessionInfoAsync(
+            token,
+            3000
+        );
 
         expect(sessionInfoResponse.responseCode).toBe(200);
         expect(sessionInfoResponse.errorInfo).toBeUndefined();
         expect(sessionInfoResponse.responseData.email).toBe(email);
-        expect(sessionInfoResponse.responseData.personalInfo).toStrictEqual(personalInfo);
+        expect(sessionInfoResponse.responseData.personalInfo).toStrictEqual(
+            personalInfo
+        );
     });
 
     it("fails to create user with same email", async () => {
@@ -60,19 +78,23 @@ describe("authentication", () => {
 
     it("fails to authenticate with wrong password", async () => {
         const client = getClient();
-        const authenticationResponse = await client.authenticateAsync(email, "123", 3000);
+        const authenticationResponse = await client.authenticateAsync(
+            email,
+            "123",
+            3000
+        );
 
         expect(authenticationResponse.responseCode).toBe(403);
-    })
+    });
 
     it("fails to authenticate withewrong email", async () => {
         const client = getClient();
-        const authenticationResponse = await client.authenticateAsync("foo", password, 3000);
+        const authenticationResponse = await client.authenticateAsync(
+            "foo",
+            password,
+            3000
+        );
 
         expect(authenticationResponse.responseCode).toBe(403);
-    })
-
-    function getClient(): AuthClient {
-        return new AuthClient("http://localhost:8080");
-    }
+    });
 });

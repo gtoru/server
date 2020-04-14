@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - "client/js/**/*"
+  pull_request:
+    branches:
+      - master
 
 jobs:
   eslint-job:
@@ -39,7 +42,7 @@ jobs:
 
   integration_tests:
     runs-on: ubuntu-latest
-    needs: [esling-job, run-tests, build]
+    needs: [eslint-job, run-tests, build]
     name: Integration tests
     steps:
       - uses: actions/checkout@v2
@@ -53,9 +56,9 @@ jobs:
   npm-publish:
     runs-on: ubuntu-latest
     needs: [eslint-job, build, run-tests, integration_tests]
+    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
-        if: ${{ github.ref }} == 'master'
       - name: install deps
         run: yarn install
       - name: build

@@ -1,3 +1,5 @@
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+
 namespace server.core.Domain.Authentication
 {
     public class Email
@@ -6,14 +8,14 @@ namespace server.core.Domain.Authentication
         {
         }
 
-        public Email(string address, bool isVerified)
+        private Email(string address, bool isVerified)
         {
             Address = address;
             IsVerified = isVerified;
         }
 
         public bool IsVerified { get; private set; }
-        public string Address { get; }
+        public string Address { get; private set; }
 
         public static Email Create(string address)
         {

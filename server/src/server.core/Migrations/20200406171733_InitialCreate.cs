@@ -8,10 +8,10 @@ namespace server.core.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
+                "Users",
+                table => new
                 {
-                    UserId = table.Column<Guid>(nullable: false),
+                    UserId = table.Column<Guid>(),
                     Password_HashAlgorithm = table.Column<int>(nullable: true),
                     Password_HashedPassword = table.Column<string>(nullable: true),
                     Email_IsVerified = table.Column<bool>(nullable: true),
@@ -22,21 +22,18 @@ namespace server.core.Migrations
                     PersonalInfo_Occupation = table.Column<string>(nullable: true),
                     PersonalInfo_Employer = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.UserId);
-                });
+                constraints: table => { table.PrimaryKey("PK_Users", x => x.UserId); });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_Email_Address",
-                table: "Users",
-                column: "Email_Address");
+                "IX_Users_Email_Address",
+                "Users",
+                "Email_Address");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Users");
+                "Users");
         }
     }
 }
