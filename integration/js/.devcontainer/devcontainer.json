@@ -1,0 +1,16 @@
+{
+  "name": "Node TS 13.8",
+  "dockerFile": "Dockerfile",
+  "remoteUser": "node",
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/zsh"
+  },
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "orta.vscode-jest",
+    "eamodio.gitlens",
+    "folke.vscode-monorepo-workspace"
+  ],
+  "postCreateCommand": "yarn install"
+}
