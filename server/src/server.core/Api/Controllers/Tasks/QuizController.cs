@@ -86,7 +86,7 @@ namespace server.core.Api.Controllers.Tasks
         [HttpGet]
         [Route("all")]
         [SwaggerOperation(
-            Description = "Requires admin access",
+            Description = "Only retrieves quiz info",
             Summary = "Returns all available quizzes")]
         [SwaggerResponse(200, "All quizzes", typeof(AllQuizzesResponse))]
         [SwaggerResponse(401, "Unauthorized")]
