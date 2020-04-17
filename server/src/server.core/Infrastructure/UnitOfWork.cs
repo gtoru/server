@@ -29,5 +29,10 @@ namespace server.core.Infrastructure
         {
             await _dbContext.SaveChangesAsync();
         }
+
+        public void Dispose()
+        {
+            _dbContext?.Dispose();
+        }
     }
 }

@@ -15,8 +15,15 @@ namespace server.core.Api.Middleware
 
         public async Task Invoke(HttpContext context, IUnitOfWork unitOfWork)
         {
-            await _next(context);
-            await unitOfWork.SaveAsync();
+            try
+            {
+                await _next(context);
+                await unitOfWork.SaveAsync();
+            }
+            finally
+            {
+                unitOfWork.Dispose();
+            }
         }
     }
 }
