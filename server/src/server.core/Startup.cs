@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
+using Prometheus;
 using server.core.Api.Authentication;
 using server.core.Api.Authorization;
 using server.core.Api.Controllers.Health;
@@ -170,12 +171,17 @@ namespace server.core
             });
 
             app.UseRouting();
+            app.UseHttpMetrics();
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseMiddleware<UnitOfWorkMiddleware>();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapMetrics();
+            });
 
             statusReporter.Current = StatusReporter.Status.Ready;
         }
