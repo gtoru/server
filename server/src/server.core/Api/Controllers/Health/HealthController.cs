@@ -17,15 +17,17 @@ namespace server.core.Api.Controllers.Health
         [HttpGet("alive")]
         public IActionResult GetAlive()
         {
-            return StatusCode(200);
+            if (_statusReporter.IsAlive())
+                return StatusCode(200);
+            return StatusCode(503);
         }
 
         [HttpGet("ready")]
         public IActionResult GetReady()
         {
-            if (_statusReporter.Current != StatusReporter.Status.Ready)
-                return StatusCode(503);
-            return StatusCode(200);
+            if (_statusReporter.IsReady())
+                return StatusCode(200);
+            return StatusCode(503);
         }
     }
 }
