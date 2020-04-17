@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 
 namespace server.core
 {
@@ -18,7 +19,8 @@ namespace server.core
                     webBuilder
                         .UseStartup<Startup>()
                         .UseUrls("http://0.0.0.0:8080");
-                });
+                })
+                .UseSerilog();
         }
     }
 }

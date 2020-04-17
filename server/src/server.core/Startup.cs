@@ -15,6 +15,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Prometheus;
+using Serilog;
+using Serilog.Events;
 using server.core.Api.Authentication;
 using server.core.Api.Authorization;
 using server.core.Api.Controllers.Health;
@@ -37,6 +39,14 @@ namespace server.core
 
         public virtual void ConfigureServices(IServiceCollection services)
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+
             services
                 .AddControllers()
                 .AddNewtonsoftJson(options =>
@@ -67,7 +77,7 @@ namespace server.core
                 options.AssumeDefaultVersionWhenUnspecified = true;
                 options.DefaultApiVersion = new ApiVersion(1, 0);
             });
-            services.AddLogging(config => { config.AddConsole(); });
+            services.AddLogging(builder => builder.AddSerilog());
             services.AddDbContext<AppDbContext>(options =>
             {
                 var host = Configuration["DB:Host"];
@@ -75,13 +85,10 @@ namespace server.core
                 var database = Configuration["DB:Database"];
                 var userName = Configuration["DB:Username"];
                 var password = Configuration["DB:Password"];
-                var loggerFactory = LoggerFactory.Create(logger =>
-                {
-                    logger.AddConsole();
-                });
+                var logFactory = LoggerFactory.Create(builder => builder.AddSerilog());
                 options.UseNpgsql(
-                    $"Host={host};Port={port};Database={database};Username={userName};Password={password}")
-                    .UseLoggerFactory(loggerFactory);
+                        $"Host={host};Port={port};Database={database};Username={userName};Password={password}")
+                    .UseLoggerFactory(logFactory);
             });
             services.AddAuthentication(options =>
             {
@@ -159,6 +166,8 @@ namespace server.core
                 app.UseDeveloperExceptionPage();
                 app.UseCors("localhost");
             }
+
+            app.UseSerilogRequestLogging();
             dbContext.Database.Migrate();
 
             CreateAdminUser(unitOfWork);
@@ -183,7 +192,7 @@ namespace server.core
                 endpoints.MapMetrics();
             });
 
-            statusReporter.Current = StatusReporter.Status.Ready;
+            statusReporter.SetReady();
         }
 
         private void CreateAdminUser(IUnitOfWork unitOfWork)
