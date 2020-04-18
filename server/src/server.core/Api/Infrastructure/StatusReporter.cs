@@ -43,5 +43,10 @@ namespace server.core.Api.Infrastructure
         {
             return _state == 1;
         }
+
+        public bool IsShuttingDown()
+        {
+            return _state == 2;
+        }
     }
 }

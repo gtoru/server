@@ -18,17 +18,17 @@ namespace server.core.Api.Infrastructure
             _hostApplicationLifetime = hostApplicationLifetime;
         }
 
-        public void StartShutdown()
-        {
-            _statusReporter.SetShutdown();
-            Task.Run(ShutdownAsync);
-        }
+        public bool InProgress => _statusReporter.IsShuttingDown();
 
-        private async Task ShutdownAsync()
+        public async Task ShutdownAsync()
         {
+            // makes readiness probe fail and stops request routing
+            _statusReporter.SetShutdown();
+
             while (true)
             {
-                if (_statusReporter.ActiveUnits == 0)
+                // which means that shutdown request is the only active request
+                if (_statusReporter.ActiveUnits <= 1)
                     break;
 
                 await Task.Delay(_nextShutdownAttemptDelay);

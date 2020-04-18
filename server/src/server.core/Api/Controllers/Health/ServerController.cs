@@ -1,4 +1,5 @@
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,13 +25,16 @@ namespace server.core.Api.Controllers.Health
         [HttpGet]
         [AllowAnonymous]
         [Route("stop")]
-        public IActionResult StartShutdown()
+        public async Task<IActionResult> Shutdown()
         {
             if (!IsLocalRequest(HttpContext.Request))
                 return StatusCode(403);
 
+            if (_shutdownManager.InProgress)
+                return StatusCode(409);
+
             _log.LogWarning("Starting shutdown process");
-            _shutdownManager.StartShutdown();
+            await _shutdownManager.ShutdownAsync();
 
             return Ok();
         }
