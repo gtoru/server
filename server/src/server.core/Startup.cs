@@ -39,14 +39,7 @@ namespace server.core
 
         public virtual void ConfigureServices(IServiceCollection services)
         {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-                .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .CreateLogger();
-
+            ConfigureLogger();
             services
                 .AddControllers()
                 .AddNewtonsoftJson(options =>
@@ -167,6 +160,7 @@ namespace server.core
                 app.UseCors("localhost");
             }
 
+            app.UseMiddleware<TraceLoggingMiddleware>();
             app.UseSerilogRequestLogging();
             dbContext.Database.Migrate();
 
@@ -206,6 +200,19 @@ namespace server.core
                 .GetResult();
 
             unitOfWork.SaveAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        private void ConfigureLogger()
+        {
+            const string loggingTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] {TraceId} {Message:lj}{NewLine}{Exception}";
+
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+                .Enrich.FromLogContext()
+                .WriteTo.Console(outputTemplate: loggingTemplate)
+                .CreateLogger();
         }
     }
 }
