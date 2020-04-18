@@ -27,12 +27,20 @@ namespace server.core.Infrastructure.Storage
         public async Task<VariantTask> FindTaskAsync(Guid taskId)
         {
             var foundTask = await _dbContext.Tasks
-                .Include(m => m.Quizzes)
-                .ThenInclude(m => m.Quiz)
                 .FirstOrDefaultAsync(m => m.TaskId == taskId);
 
             if (foundTask == null)
                 throw new TaskNotFoundException();
+
+            await _dbContext.Entry(foundTask)
+                .Collection(m => m.Quizzes)
+                .LoadAsync();
+
+            await _dbContext.Entry(foundTask)
+                .Collection(m => m.Quizzes)
+                .Query()
+                .Select(q => q.Quiz)
+                .LoadAsync();
 
             return foundTask;
         }

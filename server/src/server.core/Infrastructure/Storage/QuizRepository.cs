@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using server.core.Domain.Storage;
@@ -25,12 +26,20 @@ namespace server.core.Infrastructure.Storage
         public async Task<Quiz> FindQuizAsync(Guid quizId)
         {
             var foundQuiz = await _dbContext.Quizzes
-                .Include(m => m.Tasks)
-                .ThenInclude(m => m.Task)
                 .FirstOrDefaultAsync(m => m.QuizId == quizId);
 
             if (foundQuiz == null)
                 throw new QuizNotFoundException();
+
+            await _dbContext.Entry(foundQuiz)
+                .Collection(m => m.Tasks)
+                .LoadAsync();
+
+            await _dbContext.Entry(foundQuiz)
+                .Collection(m => m.Tasks)
+                .Query()
+                .Select(m => m.Task)
+                .LoadAsync();
 
             return foundQuiz;
         }

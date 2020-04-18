@@ -20,11 +20,14 @@ namespace server.core.Infrastructure.Storage
         public async Task<User> FindUserAsync(string email)
         {
             var user = await _dbContext.Users
-                .Include(u => u.TestSessions)
                 .FirstOrDefaultAsync(u => u.Email.Address == email);
 
             if (user is null)
                 throw new UserNotFoundException();
+
+            await _dbContext.Entry(user)
+                .Collection(u => u.TestSessions)
+                .LoadAsync();
 
             return user;
         }
@@ -32,11 +35,14 @@ namespace server.core.Infrastructure.Storage
         public async Task<User> FindUserAsync(Guid id)
         {
             var user = await _dbContext.Users
-                .Include(u => u.TestSessions)
                 .FirstOrDefaultAsync(u => u.UserId == id);
 
             if (user is null)
                 throw new UserNotFoundException();
+
+            await _dbContext.Entry(user)
+                .Collection(u => u.TestSessions)
+                .LoadAsync();
 
             return user;
         }
