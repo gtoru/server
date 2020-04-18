@@ -19,7 +19,7 @@ using Serilog;
 using Serilog.Events;
 using server.core.Api.Authentication;
 using server.core.Api.Authorization;
-using server.core.Api.Controllers.Health;
+using server.core.Api.Infrastructure;
 using server.core.Api.Middleware;
 using server.core.Application;
 using server.core.Domain.Authentication;
@@ -50,6 +50,7 @@ namespace server.core
                     });
                 });
             services.AddSingleton<StatusReporter>();
+            services.AddSingleton<ShutdownManager>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<IAuthenticator, JwtAuthenticator>();
             services.AddSingleton<IAuthorizationHandler, AccessLevelHandler>();
@@ -204,7 +205,8 @@ namespace server.core
 
         private void ConfigureLogger()
         {
-            const string loggingTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] {TraceId} {Message:lj}{NewLine}{Exception}";
+            const string loggingTemplate =
+                "[{Timestamp:HH:mm:ss} {Level:u3}] {TraceId} {Message:lj}{NewLine}{Exception}";
 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()

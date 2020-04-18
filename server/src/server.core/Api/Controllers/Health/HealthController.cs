@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using server.core.Api.Infrastructure;
 
 namespace server.core.Api.Controllers.Health
 {
