@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using server.core.Domain.Error;
 using server.core.Domain.Tasks;
 using server.core.Infrastructure;
 
@@ -28,7 +29,7 @@ namespace server.core.Application
             return currentSession;
         }
 
-        public static async Task AddAnswersAsync(IUnitOfWork unitOfWork, Guid userId, List<(int, string)> answers)
+        public static async Task AddAnswersAsync(IUnitOfWork unitOfWork, Guid userId, IEnumerable<(int, string)> answers)
         {
             var user = await unitOfWork.Users.FindUserAsync(userId);
 
@@ -40,7 +41,25 @@ namespace server.core.Application
         {
             var user = await unitOfWork.Users.FindUserAsync(userId);
 
-            return user.TestSessions.Select(s => (s.SessionId, s.GetResult()));
+            var result = new List<(Guid sessionId, int result)>();
+
+            foreach (var session in user.TestSessions)
+            {
+                if (session.IsFinished || session.Expired())
+                    result.Add((session.SessionId, session.GetResult()));
+            }
+
+            return result;
+        }
+
+        public static async Task<(Guid sessionId, int result)> EndCurrentSessionAsync(IUnitOfWork unitOfWork, Guid userId)
+        {
+            var user = await unitOfWork.Users.FindUserAsync(userId);
+
+            var currentSession = user.GetActiveSession();
+
+            currentSession.Finish();
+            return (currentSession.SessionId, currentSession.GetResult());
         }
     }
 }

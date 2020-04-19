@@ -4,5 +4,6 @@ namespace server.core.Api.Authorization
     {
         public const string OnlyAdmins = "OnlyAdminsPolicy";
         public const string EveryoneAllowed = "EveryoneAllowedPolicy";
+        public const string CanOnlyAccessOwnSessions = "CanOnlyAccessOwnSessionsPolicy";
     }
 }

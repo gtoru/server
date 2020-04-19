@@ -100,8 +100,13 @@ namespace server.core.Domain.Tasks
 
         public int GetResult()
         {
-            Finish();
-            return Result;
+            if (IsFinished || Expired())
+            {
+                Finish();
+                return Result;
+            }
+
+            throw new SessionNotFinishedException();
         }
 
         public bool Expired()
