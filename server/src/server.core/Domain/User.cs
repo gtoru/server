@@ -78,6 +78,14 @@ namespace server.core.Domain
             return !CurrentSession.IsFinished && !CurrentSession.Expired();
         }
 
+        public TestSession GetActiveSession()
+        {
+            if (!HasActiveSession())
+                throw new NoActiveSessionsException();
+
+            return CurrentSession;
+        }
+
         public void StartNewSession(Quiz quiz)
         {
             if (HasActiveSession())

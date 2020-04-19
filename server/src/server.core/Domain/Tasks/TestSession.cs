@@ -98,6 +98,12 @@ namespace server.core.Domain.Tasks
                     Result += 1;
         }
 
+        public int GetResult()
+        {
+            Finish();
+            return Result;
+        }
+
         public bool Expired()
         {
             return Started + TimeToComplete < TimeProvider.GetCurrent();
