@@ -2,6 +2,7 @@ import { QuizInfo, Quiz } from "./models";
 import { Task } from "../task/models";
 
 export class CreateQuizRequest {
+    public quizName: string;
     public tasks: string[];
 }
 

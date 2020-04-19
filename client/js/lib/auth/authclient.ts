@@ -13,7 +13,7 @@ export class AuthClient extends ClientBase {
      */
     public async registerAsync(
         user: User,
-        timeout = 2500
+        timeout = 30000
     ): Promise<Response<void>> {
         const request = (): Promise<axios.AxiosResponse<void>> =>
             this.rest.post(
@@ -36,7 +36,7 @@ export class AuthClient extends ClientBase {
     public async authenticateAsync(
         email: Email,
         password: Password,
-        timeout = 2500
+        timeout = 30000
     ): Promise<Response<AuthToken>> {
         const request = (): Promise<axios.AxiosResponse<string>> =>
             this.rest.post(
@@ -54,7 +54,7 @@ export class AuthClient extends ClientBase {
 
     public async getSessionInfoAsync(
         authToken: AuthToken,
-        timeout = 2500
+        timeout = 30000
     ): Promise<Response<SessionInfo>> {
         const request = (): Promise<axios.AxiosResponse<SessionInfoDto>> =>
             this.rest.get("api/auth/v1/sessions/my", {

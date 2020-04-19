@@ -21,7 +21,7 @@ export class TaskClient extends ClientBase {
     public async createTaskAsync(
         task: Task,
         token: AuthToken,
-        timeout?: number
+        timeout = 30000
     ): Promise<Response<TaskId>> {
         const request = (): Promise<
             axios.AxiosResponse<CreateTaskResponse>
@@ -50,7 +50,7 @@ export class TaskClient extends ClientBase {
     public async getTaskAsync(
         taskId: TaskId,
         token: AuthToken,
-        timeout?: number
+        timeout = 30000
     ): Promise<Response<Task>> {
         const request = (): Promise<axios.AxiosResponse<GetTaskResponse>> =>
             this.rest.get(`api/v1/task/${taskId}`, {
@@ -71,7 +71,7 @@ export class TaskClient extends ClientBase {
      */
     public async getAllTasksAsync(
         token: AuthToken,
-        timeout?: number
+        timeout = 30000
     ): Promise<Response<Task[]>> {
         const request = (): Promise<axios.AxiosResponse<GetAllTasksResponse>> =>
             this.rest.get("api/v1/task/all", {

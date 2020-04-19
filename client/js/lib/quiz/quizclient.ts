@@ -2,7 +2,7 @@ import { ClientBase } from "../common/client";
 import { TaskId } from "../task/models";
 import { AuthToken } from "../auth/models";
 import { Response } from "../common/models";
-import { QuizInfo, QuizId, Quiz } from "./models";
+import { QuizInfo, QuizId, Quiz, QuizName } from "./models";
 import { AxiosResponse } from "axios";
 import {
     QuizInfoDto,
@@ -20,11 +20,13 @@ export class QuizClient extends ClientBase {
      * @param timeout Request timeout, milliseconds
      */
     public async createQuizAsync(
+        quizName: QuizName,
         tasks: TaskId[],
         token: AuthToken,
-        timeout?: number
+        timeout = 30000
     ): Promise<Response<QuizInfo>> {
         const requestData: CreateQuizRequest = {
+            quizName: quizName,
             tasks: tasks,
         };
         const request = (): Promise<AxiosResponse<QuizInfoDto>> =>
@@ -49,7 +51,7 @@ export class QuizClient extends ClientBase {
     public async getQuizAsync(
         quizId: QuizId,
         token: AuthToken,
-        timeout?: number
+        timeout = 30000
     ): Promise<Response<Quiz>> {
         const request = (): Promise<AxiosResponse<GetQuizResponse>> =>
             this.rest.get(`api/v1/quiz/${quizId}`, {
@@ -71,7 +73,7 @@ export class QuizClient extends ClientBase {
      */
     public async getAllQuizzesAsync(
         token: AuthToken,
-        timeout?: number
+        timeout = 30000
     ): Promise<Response<QuizInfo[]>> {
         const request = (): Promise<AxiosResponse<GetAllQuizzesResponse>> =>
             this.rest.get("api/v1/quiz/all", {
