@@ -13,6 +13,7 @@ namespace Infrastructure.Tests.Repository
     [TestFixture]
     public class SessionTests
     {
+        private const string QuizName = "TestQuiz";
         private IUnitOfWork _unitOfWork;
         private User _user;
         private Quiz _quiz;
@@ -26,6 +27,7 @@ namespace Infrastructure.Tests.Repository
                 "password",
                 new PersonalInfo("John Doe", DateTime.UtcNow, "", "", ""));
             _quiz = Quiz.CreateNew(
+                QuizName,
                 new List<VariantTask>
                 {
                     VariantTask.CreateNew("foo", "bar", new List<string>()),

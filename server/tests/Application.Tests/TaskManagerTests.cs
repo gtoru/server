@@ -56,7 +56,7 @@ namespace Application.Tests
                 .GetBySpecAsync(Arg.Any<Expression<Func<VariantTask, bool>>>())
                 .Returns(new List<VariantTask>{task});
 
-            var addedQuiz = await TaskManager.AddQuizAsync(_unitOfWork, new[] {id});
+            var addedQuiz = await TaskManager.AddQuizAsync(_unitOfWork, "TestQuiz", new[] {id});
 
             await _unitOfWork.Tasks.Received(1).GetBySpecAsync(Arg.Any<Expression<Func<VariantTask, bool>>>());
             await _unitOfWork.Quizzes.Received(1).AddQuizAsync(Arg.Any<Quiz>());

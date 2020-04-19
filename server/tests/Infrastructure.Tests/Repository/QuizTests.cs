@@ -27,6 +27,7 @@ namespace Infrastructure.Tests.Repository
         private VariantTask _firstTask;
         private VariantTask _secondTask;
         private Quiz _quiz;
+        private const string QuizName = "TestQuiz";
         private const string FirstAnswer = "bar";
         private const string SecondAnswer = "baz";
         private IUnitOfWork _unitOfWork;
@@ -44,7 +45,7 @@ namespace Infrastructure.Tests.Repository
                 SecondAnswer,
                 new List<string> {SecondAnswer, "quux", "baq"});
 
-            _quiz = Quiz.CreateNew(new List<VariantTask> {_firstTask, _secondTask});
+            _quiz = Quiz.CreateNew(QuizName, new List<VariantTask> {_firstTask, _secondTask});
 
             var unitOfWork = await DbSetUpFixture.GetUnitOfWorkAsync();
 
@@ -58,7 +59,7 @@ namespace Infrastructure.Tests.Repository
         public async Task Should_be_able_to_create_quiz_with_same_tasks()
         {
             var firstTask = await _unitOfWork.Tasks.FindTaskAsync(_firstTask.TaskId);
-            var secondQuiz = Quiz.CreateNew(new List<VariantTask> {firstTask});
+            var secondQuiz = Quiz.CreateNew(QuizName, new List<VariantTask> {firstTask});
 
             await _unitOfWork.Quizzes.AddQuizAsync(secondQuiz);
             await _unitOfWork.SaveAsync();

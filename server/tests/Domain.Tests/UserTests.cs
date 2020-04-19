@@ -24,6 +24,7 @@ namespace Domain.Tests
                 "Monsters inc.");
         }
 
+        private const string QuizName = "TestQuiz";
         private const string Address = "foo@bar.baz";
         private const string Password = "qwerty";
         private PersonalInfo _personalInfo;
@@ -33,6 +34,7 @@ namespace Domain.Tests
         {
             var user = User.CreateNew(Address, Password, _personalInfo);
             var quiz = Quiz.CreateNew(
+                QuizName,
                 new List<VariantTask>
                 {
                     VariantTask.CreateNew("foo", "bar", new List<string>()),
@@ -52,6 +54,7 @@ namespace Domain.Tests
         {
             var user = User.CreateNew(Address, Password, _personalInfo);
             var quiz = Quiz.CreateNew(
+                QuizName,
                 new List<VariantTask>
                 {
                     VariantTask.CreateNew("foo", "bar", new List<string>()),
@@ -72,6 +75,7 @@ namespace Domain.Tests
         {
             var user = User.CreateNew(Address, Password, _personalInfo);
             var quiz = Quiz.CreateNew(
+                QuizName,
                 new List<VariantTask>
                 {
                     VariantTask.CreateNew("foo", "bar", new List<string>()),
@@ -90,7 +94,7 @@ namespace Domain.Tests
         public void Should_throw_when_starting_new_session_if_has_active_session()
         {
             var user = User.CreateNew(Address, Password, _personalInfo);
-            var quiz = Quiz.CreateNew(new List<VariantTask> {VariantTask.CreateNew("foo", "bar", new List<string>())});
+            var quiz = Quiz.CreateNew(QuizName, new List<VariantTask> {VariantTask.CreateNew("foo", "bar", new List<string>())});
             user.StartNewSession(quiz);
 
             Action sessionStart = () => user.StartNewSession(quiz);

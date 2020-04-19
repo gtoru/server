@@ -22,11 +22,14 @@ namespace Domain.Tests.Tasks
 
         private VariantTask _task;
 
+        private const string QuizName = "TestQuiz";
+
         [Test]
         public void Should_create_quiz()
         {
-            var quiz = Quiz.CreateNew(new List<VariantTask> {_task});
+            var quiz = Quiz.CreateNew(QuizName, new List<VariantTask> {_task});
 
+            quiz.QuizName.Should().BeEquivalentTo(QuizName);
             quiz.Tasks.Single().Task.Should().BeEquivalentTo(_task);
             quiz.Tasks.Single().TaskId.Should().Be(_task.TaskId);
             quiz.Tasks.Single().QuizId.Should().Be(quiz.QuizId);
@@ -36,7 +39,7 @@ namespace Domain.Tests.Tasks
         [Test]
         public void Should_lock_quiz_and_tasks()
         {
-            var quiz = Quiz.CreateNew(new List<VariantTask> {_task});
+            var quiz = Quiz.CreateNew(QuizName, new List<VariantTask> {_task});
 
             quiz.Lock();
             quiz.Locked.Should().BeTrue();
@@ -46,7 +49,7 @@ namespace Domain.Tests.Tasks
         [Test]
         public void Should_not_allow_empty_quiz_creation()
         {
-            Action creation = () => Quiz.CreateNew(new List<VariantTask>());
+            Action creation = () => Quiz.CreateNew(QuizName, new List<VariantTask>());
 
             creation.Should().Throw<EmptyTaskListException>();
         }

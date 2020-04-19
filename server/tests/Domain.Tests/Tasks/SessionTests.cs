@@ -13,6 +13,7 @@ namespace Domain.Tests.Tasks
     [TestFixture]
     public class SessionTests
     {
+        private const string QuizName = "TestQuiz";
         [SetUp]
         public void SetUp()
         {
@@ -26,7 +27,7 @@ namespace Domain.Tests.Tasks
                 "foo@bar.baz",
                 "qwerty",
                 new PersonalInfo("John Doe", DateTime.UtcNow, "", "", ""));
-            _quiz = Quiz.CreateNew(_tasks);
+            _quiz = Quiz.CreateNew(QuizName, _tasks);
             _timeProvider = Substitute.For<ITimeProvider>();
 
             _startTime = new DateTime(1970, 01, 01);

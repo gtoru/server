@@ -8,12 +8,14 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
 using server.core;
 using server.core.Api.Dto;
+using server.core.Domain.Tasks;
 
 namespace Api.Tests
 {
     [TestFixture]
     public class QuizTests
     {
+        private const string QuizName = "TestQuiz";
         [OneTimeSetUp]
         public async Task OneTimeSetUp()
         {
@@ -33,6 +35,7 @@ namespace Api.Tests
 
             var quizRequest = new CreateQuizRequest
             {
+                QuizName = QuizName,
                 Tasks = new List<Guid> {_firstTask, _secondTask}
             };
 
@@ -61,6 +64,7 @@ namespace Api.Tests
             var response = await getQuiz.GetJsonAsync<GetQuizResponse>();
 
             getQuiz.StatusCode.Should().Be(200);
+            response.QuizName.Should().BeEquivalentTo(QuizName);
             response.QuizId.Should().Be(_firstQuiz);
             response.Tasks.Count.Should().Be(2);
         }
