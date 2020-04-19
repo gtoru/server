@@ -159,5 +159,30 @@ namespace Domain.Tests
 
             user.PersonalInfo.Should().BeEquivalentTo(_personalInfo);
         }
+
+        [Test]
+        public void Should_throw_if_no_active_session()
+        {
+            var user = User.CreateNew(Address, Password, _personalInfo);
+
+            Action sessionGet = () => user.GetActiveSession();
+
+            sessionGet.Should().Throw<NoActiveSessionsException>();
+        }
+
+        [Test]
+        public void Should_not_throw_if_session_exists()
+        {
+            var user = User.CreateNew(Address, Password, _personalInfo);
+
+            user.StartNewSession(Quiz.CreateNew("", new List<VariantTask>
+            {
+                VariantTask.CreateNew("", "", new List<string>())
+            }));
+
+            Action sessionGet = () => user.GetActiveSession();
+
+            sessionGet.Should().NotThrow();
+        }
     }
 }
