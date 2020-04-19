@@ -5,6 +5,7 @@ export class ClientBase {
     public constructor(baseUrl: string) {
         this.rest = axios.default.create({
             baseURL: baseUrl,
+            timeout: 30000,
         });
     }
 }
