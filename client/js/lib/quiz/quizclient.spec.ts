@@ -11,6 +11,7 @@ const baseUrl = "http://localhost";
 const client = new QuizClient(baseUrl);
 const token = "123";
 const quizId = "123-456";
+const quizName = "TestQuiz";
 
 beforeEach(() => {
     if (!nock.isActive()) {
@@ -25,6 +26,7 @@ afterEach(() => {
 describe("quiz client", () => {
     it("gets single quiz", async () => {
         const quiz: GetQuizResponse = {
+            quizName: quizName,
             quizId: quizId,
             tasks: [
                 {
@@ -56,9 +58,11 @@ describe("quiz client", () => {
         const quizzes: GetAllQuizzesResponse = {
             quizzes: [
                 {
+                    quizName: quizName,
                     quizId: "123-456",
                 },
                 {
+                    quizName: quizName,
                     quizId: "567-890",
                 },
             ],
@@ -86,6 +90,7 @@ describe("quiz client", () => {
         };
 
         const quizInfo: QuizInfoDto = {
+            quizName: quizName,
             quizId: "123123",
         };
 

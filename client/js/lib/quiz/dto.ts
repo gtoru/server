@@ -10,10 +10,12 @@ export class GetAllQuizzesResponse {
 }
 
 export class QuizInfoDto {
+    public quizName: string;
     public quizId: string;
 
     public static toInfo(quizInfo: QuizInfoDto): QuizInfo {
         return {
+            quizName: quizInfo.quizName,
             quizId: quizInfo.quizId,
         };
     }
@@ -35,10 +37,12 @@ export class TaskResponse {
 }
 
 export class GetQuizResponse {
+    public quizName: string;
     public quizId: string;
     public tasks: TaskResponse[];
     public static toModel(quiz: GetQuizResponse): Quiz {
         return {
+            quizName: quiz.quizName,
             quizId: quiz.quizId,
             tasks: quiz.tasks.map((t) => TaskResponse.toModel(t)),
         };
