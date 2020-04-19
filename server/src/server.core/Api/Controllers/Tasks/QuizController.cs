@@ -34,7 +34,7 @@ namespace server.core.Api.Controllers.Tasks
         {
             try
             {
-                var createdQuiz = await TaskManager.AddQuizAsync(unitOfWork, request.Tasks);
+                var createdQuiz = await TaskManager.AddQuizAsync(unitOfWork, request.QuizName, request.Tasks);
                 return Ok(new CreateQuizResponse
                 {
                     QuizId = createdQuiz.QuizId
@@ -65,6 +65,7 @@ namespace server.core.Api.Controllers.Tasks
                 var foundQuiz = await TaskManager.GetQuizAsync(unitOfWork, quizId);
                 var result = new GetQuizResponse
                 {
+                    QuizName = foundQuiz.QuizName,
                     QuizId = foundQuiz.QuizId,
                     Tasks = foundQuiz.Tasks.Select(
                         t => new GetTaskResponse
@@ -98,6 +99,7 @@ namespace server.core.Api.Controllers.Tasks
 
             var result = quizzes.Select(q => new QuizInfo
             {
+                QuizName = q.QuizName,
                 QuizId = q.QuizId
             });
 

@@ -19,18 +19,21 @@ namespace server.core.Domain.Tasks
             Tasks = tasks;
         }
 
+        public string QuizName { get; private set; }
+
         public Guid QuizId { get; private set; }
 
         public List<QuizTask> Tasks { get; private set; } = new List<QuizTask>();
 
         public bool Locked { get; private set; }
 
-        public static Quiz CreateNew(List<VariantTask> tasks)
+        public static Quiz CreateNew(string quizName, List<VariantTask> tasks)
         {
             if (tasks.Count == 0)
                 throw new EmptyTaskListException();
 
-            var quiz = new Quiz();
+            var quiz = new Quiz {QuizName = quizName};
+
 
             foreach (var task in tasks)
             {

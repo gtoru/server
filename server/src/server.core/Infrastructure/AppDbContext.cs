@@ -84,6 +84,9 @@ namespace server.core.Infrastructure
                 .HasKey(m => m.QuizId);
 
             entityTypeBuilder
+                .Property(m => m.QuizName);
+
+            entityTypeBuilder
                 .Property(m => m.Locked)
                 .HasDefaultValue(false);
         }

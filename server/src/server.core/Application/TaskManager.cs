@@ -45,12 +45,13 @@ namespace server.core.Application
 
         public static async Task<Quiz> AddQuizAsync(
             IUnitOfWork unitOfWork,
+            string quizName,
             IEnumerable<Guid> taskIds)
         {
             var tasks =
                 await unitOfWork.Tasks.GetBySpecAsync(t => taskIds.Contains(t.TaskId));
 
-            var quiz = Quiz.CreateNew(tasks.ToList());
+            var quiz = Quiz.CreateNew(quizName, tasks.ToList());
 
             await unitOfWork.Quizzes.AddQuizAsync(quiz);
 
