@@ -7,26 +7,26 @@ namespace server.core.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
-                name: "IX_Users_Email_Address",
-                table: "Users");
+                "IX_Users_Email_Address",
+                "Users");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_Email_Address",
-                table: "Users",
-                column: "Email_Address",
+                "IX_Users_Email_Address",
+                "Users",
+                "Email_Address",
                 unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
-                name: "IX_Users_Email_Address",
-                table: "Users");
+                "IX_Users_Email_Address",
+                "Users");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_Email_Address",
-                table: "Users",
-                column: "Email_Address");
+                "IX_Users_Email_Address",
+                "Users",
+                "Email_Address");
         }
     }
 }

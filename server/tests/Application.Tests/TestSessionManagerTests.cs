@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using FluentAssertions.Formatting;
 using NSubstitute;
 using NUnit.Framework;
 using server.core.Application;
@@ -17,10 +16,6 @@ namespace Application.Tests
     [TestFixture]
     public class TestSessionManagerTests
     {
-        private IUnitOfWork _unitOfWork;
-        private User _user;
-        private Quiz _quiz;
-
         [SetUp]
         public void SetUp()
         {
@@ -33,10 +28,10 @@ namespace Application.Tests
             _quiz = Quiz.CreateNew(
                 "",
                 new List<VariantTask>
-            {
-                VariantTask.CreateNew("", "abc", new List<string>()),
-                VariantTask.CreateNew("", "def", new List<string>())
-            });
+                {
+                    VariantTask.CreateNew("", "abc", new List<string>()),
+                    VariantTask.CreateNew("", "def", new List<string>())
+                });
 
             _user = User.CreateNew(
                 "",
@@ -44,22 +39,16 @@ namespace Application.Tests
                 new PersonalInfo("", DateTime.Now, "", "", ""));
         }
 
-        [Test]
-        public async Task Should_start_new_session()
+        private IUnitOfWork _unitOfWork;
+        private User _user;
+        private Quiz _quiz;
+
+        private async Task StartNewSessionAsync()
         {
-            await StartNewSessionAsync();
+            _unitOfWork.Quizzes.FindQuizAsync(Arg.Is(_quiz.QuizId)).Returns(_quiz);
+            _unitOfWork.Users.FindUserAsync(Arg.Is(_user.UserId)).Returns(_user);
 
-            _user.HasActiveSession().Should().BeTrue();
-        }
-
-        [Test]
-        public async Task Should_return_active_session()
-        {
-            await StartNewSessionAsync();
-
-            Func<Task> sessionGet = async () => await TestSessionManager.GetActiveSession(_unitOfWork, _user.UserId);
-
-            sessionGet.Should().NotThrow();
+            await TestSessionManager.StartTestSessionAsync(_unitOfWork, _user.UserId, _quiz.QuizId);
         }
 
         [Test]
@@ -75,12 +64,22 @@ namespace Application.Tests
             result.Single().sessionId.Should().Be(_user.CurrentSession.SessionId);
         }
 
-        private async Task StartNewSessionAsync()
+        [Test]
+        public async Task Should_return_active_session()
         {
-            _unitOfWork.Quizzes.FindQuizAsync(Arg.Is(_quiz.QuizId)).Returns(_quiz);
-            _unitOfWork.Users.FindUserAsync(Arg.Is(_user.UserId)).Returns(_user);
+            await StartNewSessionAsync();
 
-            await TestSessionManager.StartTestSessionAsync(_unitOfWork, _user.UserId, _quiz.QuizId);
+            Func<Task> sessionGet = async () => await TestSessionManager.GetActiveSession(_unitOfWork, _user.UserId);
+
+            sessionGet.Should().NotThrow();
+        }
+
+        [Test]
+        public async Task Should_start_new_session()
+        {
+            await StartNewSessionAsync();
+
+            _user.HasActiveSession().Should().BeTrue();
         }
     }
 }

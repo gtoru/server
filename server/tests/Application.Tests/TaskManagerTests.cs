@@ -16,12 +16,31 @@ namespace Application.Tests
     [TestFixture]
     public class TaskManagerTests
     {
-        private IUnitOfWork _unitOfWork;
-
         [SetUp]
         public void SetUp()
         {
             _unitOfWork = Substitute.For<IUnitOfWork>();
+        }
+
+        private IUnitOfWork _unitOfWork;
+
+        [Test]
+        public async Task Should_call_quiz_add()
+        {
+            var id = Guid.NewGuid();
+            var task = VariantTask.CreateNew("foo", "bar", new List<string>());
+            _unitOfWork.Tasks.Returns(Substitute.For<ITaskRepository>());
+            _unitOfWork.Quizzes.Returns(Substitute.For<IQuizRepository>());
+
+            _unitOfWork.Tasks
+                .GetBySpecAsync(Arg.Any<Expression<Func<VariantTask, bool>>>())
+                .Returns(new List<VariantTask> {task});
+
+            var addedQuiz = await TaskManager.AddQuizAsync(_unitOfWork, "TestQuiz", new[] {id});
+
+            await _unitOfWork.Tasks.Received(1).GetBySpecAsync(Arg.Any<Expression<Func<VariantTask, bool>>>());
+            await _unitOfWork.Quizzes.Received(1).AddQuizAsync(Arg.Any<Quiz>());
+            addedQuiz.Tasks.Single().Task.Should().Be(task);
         }
 
         [Test]
@@ -42,25 +61,6 @@ namespace Application.Tests
 
             await _unitOfWork.Tasks.Received(1).AddTaskAsync(Arg.Is(isEqual));
             isEqual.Compile().Invoke(addedTask).Should().BeTrue();
-        }
-
-        [Test]
-        public async Task Should_call_quiz_add()
-        {
-            var id = Guid.NewGuid();
-            var task = VariantTask.CreateNew("foo", "bar", new List<string>());
-            _unitOfWork.Tasks.Returns(Substitute.For<ITaskRepository>());
-            _unitOfWork.Quizzes.Returns(Substitute.For<IQuizRepository>());
-
-            _unitOfWork.Tasks
-                .GetBySpecAsync(Arg.Any<Expression<Func<VariantTask, bool>>>())
-                .Returns(new List<VariantTask>{task});
-
-            var addedQuiz = await TaskManager.AddQuizAsync(_unitOfWork, "TestQuiz", new[] {id});
-
-            await _unitOfWork.Tasks.Received(1).GetBySpecAsync(Arg.Any<Expression<Func<VariantTask, bool>>>());
-            await _unitOfWork.Quizzes.Received(1).AddQuizAsync(Arg.Any<Quiz>());
-            addedQuiz.Tasks.Single().Task.Should().Be(task);
         }
     }
 }

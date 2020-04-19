@@ -50,6 +50,26 @@ namespace Domain.Tests
         }
 
         [Test]
+        public void Should_add_new_session()
+        {
+            var user = User.CreateNew(Address, Password, _personalInfo);
+            var quiz = Quiz.CreateNew(
+                QuizName,
+                new List<VariantTask>
+                {
+                    VariantTask.CreateNew("foo", "bar", new List<string>()),
+                    VariantTask.CreateNew("baz", "quux", new List<string>())
+                });
+
+            user.StartNewSession(quiz);
+
+            user.HasActiveSession().Should().BeTrue();
+            user.TestSessions.Count.Should().Be(1);
+            user.TestSessions.Single().Should().Be(user.CurrentSession);
+            user.CurrentSession.Quiz.Should().BeEquivalentTo(quiz);
+        }
+
+        [Test]
         public void Should_calculate_score()
         {
             var user = User.CreateNew(Address, Password, _personalInfo);
@@ -71,38 +91,6 @@ namespace Domain.Tests
         }
 
         [Test]
-        public void Should_add_new_session()
-        {
-            var user = User.CreateNew(Address, Password, _personalInfo);
-            var quiz = Quiz.CreateNew(
-                QuizName,
-                new List<VariantTask>
-                {
-                    VariantTask.CreateNew("foo", "bar", new List<string>()),
-                    VariantTask.CreateNew("baz", "quux", new List<string>())
-                });
-
-            user.StartNewSession(quiz);
-
-            user.HasActiveSession().Should().BeTrue();
-            user.TestSessions.Count.Should().Be(1);
-            user.TestSessions.Single().Should().Be(user.CurrentSession);
-            user.CurrentSession.Quiz.Should().BeEquivalentTo(quiz);
-        }
-
-        [Test]
-        public void Should_throw_when_starting_new_session_if_has_active_session()
-        {
-            var user = User.CreateNew(Address, Password, _personalInfo);
-            var quiz = Quiz.CreateNew(QuizName, new List<VariantTask> {VariantTask.CreateNew("foo", "bar", new List<string>())});
-            user.StartNewSession(quiz);
-
-            Action sessionStart = () => user.StartNewSession(quiz);
-
-            sessionStart.Should().Throw<AlreadyHasActiveSessionException>();
-        }
-
-        [Test]
         public void Should_create_with_empty_test_session()
         {
             var user = User.CreateNew(Address, Password, _personalInfo);
@@ -116,6 +104,21 @@ namespace Domain.Tests
             var user = User.CreateNew(Address, Password, _personalInfo);
 
             user.Email.IsVerified.Should().BeFalse();
+        }
+
+        [Test]
+        public void Should_not_throw_if_session_exists()
+        {
+            var user = User.CreateNew(Address, Password, _personalInfo);
+
+            user.StartNewSession(Quiz.CreateNew("", new List<VariantTask>
+            {
+                VariantTask.CreateNew("", "", new List<string>())
+            }));
+
+            Action sessionGet = () => user.GetActiveSession();
+
+            sessionGet.Should().NotThrow();
         }
 
         [Test]
@@ -171,18 +174,16 @@ namespace Domain.Tests
         }
 
         [Test]
-        public void Should_not_throw_if_session_exists()
+        public void Should_throw_when_starting_new_session_if_has_active_session()
         {
             var user = User.CreateNew(Address, Password, _personalInfo);
+            var quiz = Quiz.CreateNew(QuizName,
+                new List<VariantTask> {VariantTask.CreateNew("foo", "bar", new List<string>())});
+            user.StartNewSession(quiz);
 
-            user.StartNewSession(Quiz.CreateNew("", new List<VariantTask>
-            {
-                VariantTask.CreateNew("", "", new List<string>())
-            }));
+            Action sessionStart = () => user.StartNewSession(quiz);
 
-            Action sessionGet = () => user.GetActiveSession();
-
-            sessionGet.Should().NotThrow();
+            sessionStart.Should().Throw<AlreadyHasActiveSessionException>();
         }
     }
 }

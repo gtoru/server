@@ -45,11 +45,6 @@ namespace server.core.Infrastructure.Storage
             return foundTask;
         }
 
-        public IAsyncEnumerable<VariantTask> GetAllEnumerableAsync()
-        {
-            return _dbContext.Tasks.AsAsyncEnumerable();
-        }
-
         public async Task<List<VariantTask>> GetAllAsync()
         {
             return await _dbContext.Tasks.ToListAsync();
@@ -58,6 +53,11 @@ namespace server.core.Infrastructure.Storage
         public async Task<List<VariantTask>> GetBySpecAsync(Expression<Func<VariantTask, bool>> spec)
         {
             return await _dbContext.Tasks.Where(spec).ToListAsync();
+        }
+
+        public IAsyncEnumerable<VariantTask> GetAllEnumerableAsync()
+        {
+            return _dbContext.Tasks.AsAsyncEnumerable();
         }
     }
 }

@@ -8,50 +8,50 @@ namespace server.core.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_QuizTask_Tasks_QuizId",
-                table: "QuizTask");
+                "FK_QuizTask_Tasks_QuizId",
+                "QuizTask");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_QuizTask_Quizzes_TaskId",
-                table: "QuizTask");
+                "FK_QuizTask_Quizzes_TaskId",
+                "QuizTask");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_TestSessions_Users_UserId",
-                table: "TestSessions");
+                "FK_TestSessions_Users_UserId",
+                "TestSessions");
 
             migrationBuilder.DropColumn(
-                name: "CurrentSession",
-                table: "Users");
+                "CurrentSession",
+                "Users");
 
             migrationBuilder.AlterColumn<Guid>(
-                name: "UserId",
-                table: "TestSessions",
+                "UserId",
+                "TestSessions",
                 nullable: false,
                 oldClrType: typeof(Guid),
                 oldType: "uuid",
                 oldNullable: true);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_QuizTask_Quizzes_QuizId",
-                table: "QuizTask",
-                column: "QuizId",
-                principalTable: "Quizzes",
+                "FK_QuizTask_Quizzes_QuizId",
+                "QuizTask",
+                "QuizId",
+                "Quizzes",
                 principalColumn: "QuizId",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_QuizTask_Tasks_TaskId",
-                table: "QuizTask",
-                column: "TaskId",
-                principalTable: "Tasks",
+                "FK_QuizTask_Tasks_TaskId",
+                "QuizTask",
+                "TaskId",
+                "Tasks",
                 principalColumn: "TaskId",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_TestSessions_Users_UserId",
-                table: "TestSessions",
-                column: "UserId",
-                principalTable: "Users",
+                "FK_TestSessions_Users_UserId",
+                "TestSessions",
+                "UserId",
+                "Users",
                 principalColumn: "UserId",
                 onDelete: ReferentialAction.Cascade);
         }
@@ -59,52 +59,52 @@ namespace server.core.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_QuizTask_Quizzes_QuizId",
-                table: "QuizTask");
+                "FK_QuizTask_Quizzes_QuizId",
+                "QuizTask");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_QuizTask_Tasks_TaskId",
-                table: "QuizTask");
+                "FK_QuizTask_Tasks_TaskId",
+                "QuizTask");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_TestSessions_Users_UserId",
-                table: "TestSessions");
+                "FK_TestSessions_Users_UserId",
+                "TestSessions");
 
             migrationBuilder.AddColumn<Guid>(
-                name: "CurrentSession",
-                table: "Users",
-                type: "uuid",
+                "CurrentSession",
+                "Users",
+                "uuid",
                 nullable: false,
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
             migrationBuilder.AlterColumn<Guid>(
-                name: "UserId",
-                table: "TestSessions",
-                type: "uuid",
+                "UserId",
+                "TestSessions",
+                "uuid",
                 nullable: true,
                 oldClrType: typeof(Guid));
 
             migrationBuilder.AddForeignKey(
-                name: "FK_QuizTask_Tasks_QuizId",
-                table: "QuizTask",
-                column: "QuizId",
-                principalTable: "Tasks",
+                "FK_QuizTask_Tasks_QuizId",
+                "QuizTask",
+                "QuizId",
+                "Tasks",
                 principalColumn: "TaskId",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_QuizTask_Quizzes_TaskId",
-                table: "QuizTask",
-                column: "TaskId",
-                principalTable: "Quizzes",
+                "FK_QuizTask_Quizzes_TaskId",
+                "QuizTask",
+                "TaskId",
+                "Quizzes",
                 principalColumn: "QuizId",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_TestSessions_Users_UserId",
-                table: "TestSessions",
-                column: "UserId",
-                principalTable: "Users",
+                "FK_TestSessions_Users_UserId",
+                "TestSessions",
+                "UserId",
+                "Users",
                 principalColumn: "UserId",
                 onDelete: ReferentialAction.Restrict);
         }

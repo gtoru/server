@@ -15,7 +15,8 @@ namespace server.core.Api.Authorization
             _httpContextAccessor = httpContextAccessor;
         }
 
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, UserIdRouteRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
+            UserIdRouteRequirement requirement)
         {
             var userId = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
 
@@ -24,9 +25,7 @@ namespace server.core.Api.Authorization
 
             if (!_httpContextAccessor.HttpContext.Request.Path.StartsWithSegments(
                 $"{requirement}/{userId}"))
-            {
                 return Task.CompletedTask;
-            }
 
             context.Succeed(requirement);
             return Task.CompletedTask;

@@ -7,16 +7,16 @@ namespace server.core.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "QuizName",
-                table: "Quizzes",
+                "QuizName",
+                "Quizzes",
                 nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "QuizName",
-                table: "Quizzes");
+                "QuizName",
+                "Quizzes");
         }
     }
 }
