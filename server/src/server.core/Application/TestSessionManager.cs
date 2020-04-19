@@ -19,6 +19,15 @@ namespace server.core.Application
             return user.CurrentSession;
         }
 
+        public static async Task<TestSession> GetActiveSession(IUnitOfWork unitOfWork, Guid userId)
+        {
+            var user = await unitOfWork.Users.FindUserAsync(userId);
+
+            var currentSession = user.GetActiveSession();
+
+            return currentSession;
+        }
+
         public static async Task AddAnswersAsync(IUnitOfWork unitOfWork, Guid userId, List<(int, string)> answers)
         {
             var user = await unitOfWork.Users.FindUserAsync(userId);
@@ -31,7 +40,7 @@ namespace server.core.Application
         {
             var user = await unitOfWork.Users.FindUserAsync(userId);
 
-            return user.TestSessions.Select(s => (s.SessionId, s.Result));
+            return user.TestSessions.Select(s => (s.SessionId, s.GetResult()));
         }
     }
 }
