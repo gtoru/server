@@ -86,6 +86,7 @@ describe("quiz client", () => {
 
     it("creates quiz", async () => {
         const request: CreateQuizRequest = {
+            quizName: quizName,
             tasks: ["123-456", "456-789"],
         };
 
@@ -99,7 +100,11 @@ describe("quiz client", () => {
             .matchHeader("Authorization", "Bearer " + token)
             .reply(200, JSON.stringify(quizInfo));
 
-        const newQuiz = await client.createQuizAsync(request.tasks, token);
+        const newQuiz = await client.createQuizAsync(
+            quizName,
+            request.tasks,
+            token
+        );
 
         expect(newQuiz.responseCode).toBe(200);
         expect(newQuiz.errorInfo).toBeUndefined();
