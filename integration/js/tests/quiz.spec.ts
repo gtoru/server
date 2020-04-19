@@ -17,6 +17,7 @@ const task: Task = {
     taskId: "",
 };
 let token: string;
+const quizName = "TetstQuiz";
 const taskIds: TaskId[] = [];
 
 async function authenticateAdminAsync(): Promise<AuthToken> {
@@ -66,19 +67,28 @@ beforeAll(async () => {
 
 describe("quiz client", () => {
     it("creates new quiz", async () => {
-        const quizCreation = await client.createQuizAsync(taskIds, token);
+        const quizCreation = await client.createQuizAsync(
+            quizName,
+            taskIds,
+            token
+        );
 
         expect(quizCreation.responseCode).toBe(200);
     });
 
     it("finds existing quiz", async () => {
-        const quizCreation = await client.createQuizAsync(taskIds, token);
+        const quizCreation = await client.createQuizAsync(
+            quizName,
+            taskIds,
+            token
+        );
         const foundQuiz = await client.getQuizAsync(
             quizCreation.responseData.quizId,
             token
         );
 
         expect(foundQuiz.responseCode).toBe(200);
+        expect(foundQuiz.responseData.quizName).toBe(quizName);
         expect(foundQuiz.responseData.quizId).toBe(
             quizCreation.responseData.quizId
         );
@@ -105,7 +115,7 @@ describe("quiz client", () => {
 
         const responses = [
             await client.getQuizAsync("some-id", nonAdminToken),
-            await client.createQuizAsync([], nonAdminToken),
+            await client.createQuizAsync("", [], nonAdminToken),
         ];
 
         expect(responses.map((r) => r.responseCode)).toStrictEqual([403, 403]);
