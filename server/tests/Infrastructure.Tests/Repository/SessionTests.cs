@@ -30,8 +30,8 @@ namespace Infrastructure.Tests.Repository
                 QuizName,
                 new List<VariantTask>
                 {
-                    VariantTask.CreateNew("foo", "bar", new List<string>()),
-                    VariantTask.CreateNew("baz", "quux", new List<string>())
+                    VariantTask.CreateNew("foo", "bar", new List<string>(), 2),
+                    VariantTask.CreateNew("baz", "quux", new List<string>(), 2)
                 });
 
             await _unitOfWork.Quizzes.AddQuizAsync(_quiz);

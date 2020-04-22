@@ -64,7 +64,8 @@ namespace Api.Tests.Helpers
             var sessionInfoResponse = await client.GetAsync(
                 "api/auth/v1/sessions/my");
 
-            return JsonConvert.DeserializeObject<SessionInfo>(await sessionInfoResponse.Content.ReadAsStringAsync()).UserId;
+            return JsonConvert.DeserializeObject<SessionInfo>(await sessionInfoResponse.Content.ReadAsStringAsync())
+                .UserId;
         }
     }
 }

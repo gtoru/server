@@ -43,11 +43,9 @@ namespace server.core.Infrastructure.Storage
                     .LoadAsync();
 
                 foreach (var task in quiz.Tasks)
-                {
                     await _dbContext.Entry(task)
                         .Reference(t => t.Task)
                         .LoadAsync();
-                }
             }
 
             return user;
@@ -78,11 +76,9 @@ namespace server.core.Infrastructure.Storage
                     .LoadAsync();
 
                 foreach (var task in quiz.Tasks)
-                {
                     await _dbContext.Entry(task)
                         .Reference(t => t.Task)
                         .LoadAsync();
-                }
             }
 
             return user;

@@ -37,8 +37,8 @@ namespace Domain.Tests
                 QuizName,
                 new List<VariantTask>
                 {
-                    VariantTask.CreateNew("foo", "bar", new List<string>()),
-                    VariantTask.CreateNew("baz", "quux", new List<string>())
+                    VariantTask.CreateNew("foo", "bar", new List<string>(), 2),
+                    VariantTask.CreateNew("baz", "quux", new List<string>(), 2)
                 });
 
             user.StartNewSession(quiz);
@@ -57,8 +57,8 @@ namespace Domain.Tests
                 QuizName,
                 new List<VariantTask>
                 {
-                    VariantTask.CreateNew("foo", "bar", new List<string>()),
-                    VariantTask.CreateNew("baz", "quux", new List<string>())
+                    VariantTask.CreateNew("foo", "bar", new List<string>(), 2),
+                    VariantTask.CreateNew("baz", "quux", new List<string>(), 2)
                 });
 
             user.StartNewSession(quiz);
@@ -77,8 +77,8 @@ namespace Domain.Tests
                 QuizName,
                 new List<VariantTask>
                 {
-                    VariantTask.CreateNew("foo", "bar", new List<string>()),
-                    VariantTask.CreateNew("baz", "quux", new List<string>())
+                    VariantTask.CreateNew("foo", "bar", new List<string>(), 2),
+                    VariantTask.CreateNew("baz", "quux", new List<string>(), 2)
                 });
 
             user.StartNewSession(quiz);
@@ -87,7 +87,7 @@ namespace Domain.Tests
             user.CurrentSession.Answer(1, "baz");
 
             user.CurrentSession.Finish();
-            user.CurrentSession.Result.Should().Be(1);
+            user.CurrentSession.Result.Should().Be(2);
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace Domain.Tests
 
             user.StartNewSession(Quiz.CreateNew("", new List<VariantTask>
             {
-                VariantTask.CreateNew("", "", new List<string>())
+                VariantTask.CreateNew("", "", new List<string>(), 2)
             }));
 
             Action sessionGet = () => user.GetActiveSession();
@@ -178,7 +178,7 @@ namespace Domain.Tests
         {
             var user = User.CreateNew(Address, Password, _personalInfo);
             var quiz = Quiz.CreateNew(QuizName,
-                new List<VariantTask> {VariantTask.CreateNew("foo", "bar", new List<string>())});
+                new List<VariantTask> {VariantTask.CreateNew("foo", "bar", new List<string>(), 2)});
             user.StartNewSession(quiz);
 
             Action sessionStart = () => user.StartNewSession(quiz);

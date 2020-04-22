@@ -117,6 +117,11 @@ namespace server.core.Migrations
                 b.Property<List<string>>("Variants")
                     .HasColumnType("jsonb");
 
+                b.Property<int>("Weight")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(1);
+
                 b.HasKey("TaskId");
 
                 b.ToTable("Tasks");

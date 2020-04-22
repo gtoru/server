@@ -27,7 +27,8 @@ namespace Domain.Tests.Tasks
             var task = VariantTask.CreateNew(
                 Question,
                 Answer,
-                _variants);
+                _variants,
+                2);
 
             task.Question.Should().BeEquivalentTo(Question);
             task.Answer.Should().BeEquivalentTo(Answer);
@@ -41,7 +42,8 @@ namespace Domain.Tests.Tasks
             var task = VariantTask.CreateNew(
                 Question,
                 Answer,
-                _variants);
+                _variants,
+                2);
 
             task.Lock();
 

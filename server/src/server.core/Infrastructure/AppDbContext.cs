@@ -104,6 +104,10 @@ namespace server.core.Infrastructure
             entityTypeBuilder
                 .Property(m => m.Locked)
                 .HasDefaultValue(false);
+
+            entityTypeBuilder
+                .Property(m => m.Weight)
+                .HasDefaultValue(1);
         }
 
         private void ConfigureSessions(EntityTypeBuilder<TestSession> entityTypeBuilder)

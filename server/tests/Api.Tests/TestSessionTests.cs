@@ -12,8 +12,6 @@ namespace Api.Tests
     [TestFixture]
     public class TestSessionTests
     {
-        private HttpClient _client;
-
         [SetUp]
         public void SetUp()
         {
@@ -21,26 +19,34 @@ namespace Api.Tests
             _client = factory.CreateClient();
         }
 
-        [Test]
-        public async Task Should_start_new_test_session()
+        private HttpClient _client;
+
+        private async Task<Guid> CreateNewQuizAsync()
         {
-            var email = "user";
-            var password = "password";
-            var quizId = await CreateNewQuizAsync();
+            var adminToken = await _client.AuthenticateAsync("admin", "admin");
+            _client.SetJwt(adminToken);
+            var firstId = await _client.CreateTaskAsync(new CreateTaskRequest
+            {
+                Answer = "42",
+                Question = "abc",
+                Weight = 2,
+                Variants = new List<string>()
+            });
+            var secondId = await _client.CreateTaskAsync(new CreateTaskRequest
+            {
+                Answer = "42",
+                Question = "def",
+                Weight = 2,
+                Variants = new List<string>()
+            });
 
-            await _client.RegisterAsync(email, password);
-            var token = await _client.AuthenticateAsync(email, password);
-            _client.SetJwt(token);
-            var userId = await _client.GetUserIdAsync(token);
+            var quizId = await _client.CreateQuizAsync(new CreateQuizRequest
+            {
+                Tasks = new List<Guid> {firstId, secondId},
+                QuizName = "test quiz"
+            });
 
-            var testSessionCreation = await _client.PostAsync(
-                $"api/v1/user/{userId}/sessions/new",
-                new NewTestSessionRequest
-                {
-                    QuizId = quizId
-                }.ToJsonContent());
-
-            testSessionCreation.StatusCode.Should().Be(200);
+            return quizId;
         }
 
         [Test]
@@ -95,7 +101,7 @@ namespace Api.Tests
 
             var sessionEnd = await _client.PostAsync(
                 $"api/v1/user/{userId}/sessions/end",
-                new {}.ToJsonContent());
+                new { }.ToJsonContent());
 
             sessionEnd.StatusCode.Should().Be(200);
 
@@ -105,30 +111,26 @@ namespace Api.Tests
             currentSessionGet.StatusCode.Should().Be(404);
         }
 
-        private async Task<Guid> CreateNewQuizAsync()
+        [Test]
+        public async Task Should_start_new_test_session()
         {
-            var adminToken = await _client.AuthenticateAsync("admin", "admin");
-            _client.SetJwt(adminToken);
-            var firstId = await _client.CreateTaskAsync(new CreateTaskRequest
-            {
-                Answer = "42",
-                Question = "abc",
-                Variants = new List<string>()
-            });
-            var secondId = await _client.CreateTaskAsync(new CreateTaskRequest
-            {
-                Answer = "42",
-                Question = "def",
-                Variants = new List<string>()
-            });
+            var email = "user";
+            var password = "password";
+            var quizId = await CreateNewQuizAsync();
 
-            var quizId = await _client.CreateQuizAsync(new CreateQuizRequest
-            {
-                Tasks = new List<Guid>{firstId, secondId},
-                QuizName = "test quiz"
-            });
+            await _client.RegisterAsync(email, password);
+            var token = await _client.AuthenticateAsync(email, password);
+            _client.SetJwt(token);
+            var userId = await _client.GetUserIdAsync(token);
 
-            return quizId;
+            var testSessionCreation = await _client.PostAsync(
+                $"api/v1/user/{userId}/sessions/new",
+                new NewTestSessionRequest
+                {
+                    QuizId = quizId
+                }.ToJsonContent());
+
+            testSessionCreation.StatusCode.Should().Be(200);
         }
     }
 }

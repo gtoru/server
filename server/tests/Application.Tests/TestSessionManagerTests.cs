@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
@@ -29,8 +28,8 @@ namespace Application.Tests
                 "",
                 new List<VariantTask>
                 {
-                    VariantTask.CreateNew("", "abc", new List<string>()),
-                    VariantTask.CreateNew("", "def", new List<string>())
+                    VariantTask.CreateNew("", "abc", new List<string>(), 2),
+                    VariantTask.CreateNew("", "def", new List<string>(), 2)
                 });
 
             _user = User.CreateNew(
@@ -60,7 +59,7 @@ namespace Application.Tests
 
             var result = await TestSessionManager.EndCurrentSessionAsync(_unitOfWork, _user.UserId);
 
-            result.result.Should().Be(1);
+            result.result.Should().Be(2);
             result.sessionId.Should().Be(_user.CurrentSession.SessionId);
         }
 

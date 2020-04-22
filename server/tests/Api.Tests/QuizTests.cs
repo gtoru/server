@@ -34,6 +34,7 @@ namespace Api.Tests
             {
                 Answer = "42",
                 Question = "Meaning of life",
+                Weight = 2,
                 Variants = new List<string> {"foo", "bar", "42"}
             };
 
