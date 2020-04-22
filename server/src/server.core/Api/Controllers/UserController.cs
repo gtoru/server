@@ -117,7 +117,7 @@ namespace server.core.Api.Controllers
         [Route("{userId}/sessions/end")]
         public async Task<ActionResult<GetResultResponse>> EndSessionAsync(
             [FromServices] IUnitOfWork unitOfWork,
-            [FromQuery] Guid userId)
+            [FromRoute] Guid userId)
         {
             try
             {

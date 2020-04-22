@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using server.core.Domain;
@@ -29,6 +30,26 @@ namespace server.core.Infrastructure.Storage
                 .Collection(u => u.TestSessions)
                 .LoadAsync();
 
+            await _dbContext.Entry(user)
+                .Collection(u => u.TestSessions)
+                .Query()
+                .Select(t => t.Quiz)
+                .LoadAsync();
+
+            foreach (var quiz in user.TestSessions.Select(s => s.Quiz))
+            {
+                await _dbContext.Entry(quiz)
+                    .Collection(q => q.Tasks)
+                    .LoadAsync();
+
+                foreach (var task in quiz.Tasks)
+                {
+                    await _dbContext.Entry(task)
+                        .Reference(t => t.Task)
+                        .LoadAsync();
+                }
+            }
+
             return user;
         }
 
@@ -43,6 +64,26 @@ namespace server.core.Infrastructure.Storage
             await _dbContext.Entry(user)
                 .Collection(u => u.TestSessions)
                 .LoadAsync();
+
+            await _dbContext.Entry(user)
+                .Collection(u => u.TestSessions)
+                .Query()
+                .Select(t => t.Quiz)
+                .LoadAsync();
+
+            foreach (var quiz in user.TestSessions.Select(s => s.Quiz))
+            {
+                await _dbContext.Entry(quiz)
+                    .Collection(q => q.Tasks)
+                    .LoadAsync();
+
+                foreach (var task in quiz.Tasks)
+                {
+                    await _dbContext.Entry(task)
+                        .Reference(t => t.Task)
+                        .LoadAsync();
+                }
+            }
 
             return user;
         }

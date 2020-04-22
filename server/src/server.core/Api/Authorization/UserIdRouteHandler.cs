@@ -18,13 +18,13 @@ namespace server.core.Api.Authorization
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
             UserIdRouteRequirement requirement)
         {
-            var userId = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
+            var userId = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
             if (userId == null)
                 return Task.CompletedTask;
 
             if (!_httpContextAccessor.HttpContext.Request.Path.StartsWithSegments(
-                $"{requirement}/{userId}"))
+                $"{requirement.UrlPrefix}/{userId}"))
                 return Task.CompletedTask;
 
             context.Succeed(requirement);

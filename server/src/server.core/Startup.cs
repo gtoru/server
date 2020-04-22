@@ -112,7 +112,7 @@ namespace server.core
                     policy.Requirements.Add(new AccessLevelRequirement(AccessLevel.User))
                 );
                 options.AddPolicy(AuthorizationPolicy.CanOnlyAccessOwnSessions, policy =>
-                    policy.Requirements.Add(new UserIdRouteRequirement("api/v1/user")));
+                    policy.Requirements.Add(new UserIdRouteRequirement("/api/v1/user")));
             });
             services.AddSwaggerGen(options =>
             {

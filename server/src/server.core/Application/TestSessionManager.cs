@@ -15,6 +15,8 @@ namespace server.core.Application
 
             user.StartNewSession(quiz);
 
+            await unitOfWork.TestSessions.AddTestSessionAsync(user.CurrentSession);
+
             return user.CurrentSession;
         }
 
