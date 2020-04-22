@@ -20,6 +20,7 @@ afterEach(() => {
 describe("task client", () => {
     it("gets single task", async () => {
         const response: GetTaskResponse = {
+            weight: 2,
             taskId: "",
             answer: "42",
             question: "Meaning of life",
@@ -46,6 +47,7 @@ describe("task client", () => {
 
     it("gets all tasks", async () => {
         const taskResponse: GetTaskResponse = {
+            weight: 2,
             answer: "42",
             question: "Meaning of life",
             taskId: "9234-1234",
@@ -73,6 +75,7 @@ describe("task client", () => {
 
     it("creates new task", async () => {
         const task: Task = {
+            weight: 2,
             answer: "42",
             question: "Meaning of life",
             taskId: "123",

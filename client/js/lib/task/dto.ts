@@ -19,6 +19,7 @@ export class CreateTaskResponse {
 }
 
 export class GetTaskResponse {
+    public weight: number;
     public taskId: string;
     public question: string;
     public answer: string;
@@ -26,6 +27,7 @@ export class GetTaskResponse {
     public static toModel(task: GetTaskResponse): Task {
         return {
             answer: task.answer,
+            weight: task.weight,
             question: task.question,
             taskId: task.taskId,
             variants: task.variants,
