@@ -58,10 +58,10 @@ namespace Application.Tests
 
             await TestSessionManager.AddAnswersAsync(_unitOfWork, _user.UserId, new List<(int, string)> {(0, "abc")});
 
-            var result = (await TestSessionManager.GetResultsAsync(_unitOfWork, _user.UserId)).ToList();
+            var result = await TestSessionManager.EndCurrentSessionAsync(_unitOfWork, _user.UserId);
 
-            result.Single().result.Should().Be(1);
-            result.Single().sessionId.Should().Be(_user.CurrentSession.SessionId);
+            result.result.Should().Be(1);
+            result.sessionId.Should().Be(_user.CurrentSession.SessionId);
         }
 
         [Test]

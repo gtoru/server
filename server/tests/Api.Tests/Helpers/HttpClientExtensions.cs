@@ -57,5 +57,14 @@ namespace Api.Tests.Helpers
 
             return await authenticationResponse.Content.ReadAsStringAsync();
         }
+
+        public static async Task<Guid> GetUserIdAsync(this HttpClient client, string token)
+        {
+            client.SetJwt(token);
+            var sessionInfoResponse = await client.GetAsync(
+                "api/auth/v1/sessions/my");
+
+            return JsonConvert.DeserializeObject<SessionInfo>(await sessionInfoResponse.Content.ReadAsStringAsync()).UserId;
+        }
     }
 }
