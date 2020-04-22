@@ -10,6 +10,7 @@ const baseUrl = "http://localhost:8080";
 const client = new TaskClient(baseUrl);
 
 const task: Task = {
+    weight: 2,
     answer: "42",
     question: "Meaning of life",
     taskId: "00",

@@ -11,6 +11,7 @@ import {
 const baseUrl = "http://localhost:8080";
 const client = new QuizClient(baseUrl);
 const task: Task = {
+    weight: 2,
     answer: "42",
     question: "Meaning of life",
     variants: ["Death", "Love", "42"],
