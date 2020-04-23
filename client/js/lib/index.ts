@@ -5,6 +5,12 @@ export { Quiz, QuizId, QuizInfo, QuizName } from "./quiz/models";
 export { AuthClient } from "./auth/authclient";
 export {
     User,
+    Address,
+    Birthday,
+    Employer,
+    Name,
+    Occupation,
+    UserId,
     AuthToken,
     Email,
     SessionInfo,
