@@ -8,14 +8,21 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using NUnit.Framework;
 using server.core;
 using server.core.Api.Dto;
-using server.core.Domain.Tasks;
 
 namespace Api.Tests
 {
     [TestFixture]
     public class QuizTests
     {
+        [SetUp]
+        public void SetUp()
+        {
+            _factory = new LocalWebApplicationFactory();
+            Client = _factory.CreateClient();
+        }
+
         private const string QuizName = "TestQuiz";
+
         [OneTimeSetUp]
         public async Task OneTimeSetUp()
         {
@@ -27,6 +34,7 @@ namespace Api.Tests
             {
                 Answer = "42",
                 Question = "Meaning of life",
+                Weight = 2,
                 Variants = new List<string> {"foo", "bar", "42"}
             };
 
@@ -49,24 +57,36 @@ namespace Api.Tests
             _factory.Dispose();
         }
 
-        [SetUp]
-        public void SetUp()
+
+        private Guid _firstQuiz;
+        private Guid _secondQuiz;
+        private Guid _firstTask;
+        private Guid _secondTask;
+
+        private const string BaseRoute = "api/v1/quiz";
+        private const string GetAllRoute = BaseRoute + "/all";
+
+        private string GetQuizRoute(Guid id)
         {
-            _factory = new LocalWebApplicationFactory();
-            Client = _factory.CreateClient();
+            return $"{BaseRoute}/{id.ToString()}";
         }
 
-        [Test]
-        public async Task Should_find_existing_quiz()
-        {
-            await AuthenticateAdminAsync(Client);
-            var getQuiz = await Client.GetAsync(GetQuizRoute(_firstQuiz));
-            var response = await getQuiz.GetJsonAsync<GetQuizResponse>();
+        private const string CreateQuizRoute = BaseRoute + "/new";
+        private HttpClient Client { get; set; }
+        private WebApplicationFactory<Startup> _factory;
 
-            getQuiz.StatusCode.Should().Be(200);
-            response.QuizName.Should().BeEquivalentTo(QuizName);
-            response.QuizId.Should().Be(_firstQuiz);
-            response.Tasks.Count.Should().Be(2);
+        private async Task AuthenticateAdminAsync(HttpClient client)
+        {
+            var response = await client.PostAsync(
+                "api/auth/v1/user/authenticate",
+                new AuthenticationRequest
+                {
+                    Email = "admin",
+                    Password = "admin"
+                }.ToJsonContent());
+
+            var token = await response.Content.ReadAsStringAsync();
+            client.SetJwt(token);
         }
 
         [Test]
@@ -83,6 +103,19 @@ namespace Api.Tests
         }
 
         [Test]
+        public async Task Should_find_existing_quiz()
+        {
+            await AuthenticateAdminAsync(Client);
+            var getQuiz = await Client.GetAsync(GetQuizRoute(_firstQuiz));
+            var response = await getQuiz.GetJsonAsync<GetQuizResponse>();
+
+            getQuiz.StatusCode.Should().Be(200);
+            response.QuizName.Should().BeEquivalentTo(QuizName);
+            response.QuizId.Should().Be(_firstQuiz);
+            response.Tasks.Count.Should().Be(2);
+        }
+
+        [Test]
         public async Task Should_get_401_when_not_authorized()
         {
             var responses = await Task.WhenAll(
@@ -90,10 +123,7 @@ namespace Api.Tests
                 Client.GetAsync(GetQuizRoute(Guid.NewGuid())),
                 Client.PostAsync(CreateQuizRoute, new CreateQuizRequest().ToJsonContent()));
 
-            foreach (var httpResponseMessage in responses)
-            {
-                httpResponseMessage.StatusCode.Should().Be(401);
-            }
+            foreach (var httpResponseMessage in responses) httpResponseMessage.StatusCode.Should().Be(401);
         }
 
         [Test]
@@ -111,10 +141,7 @@ namespace Api.Tests
                 Client.GetAsync(GetQuizRoute(Guid.NewGuid())),
                 Client.PostAsync(CreateQuizRoute, new CreateQuizRequest().ToJsonContent()));
 
-            foreach (var httpResponseMessage in responses)
-            {
-                httpResponseMessage.StatusCode.Should().Be(403);
-            }
+            foreach (var httpResponseMessage in responses) httpResponseMessage.StatusCode.Should().Be(403);
         }
 
         [Test]
@@ -132,33 +159,6 @@ namespace Api.Tests
 
             allTestsResponse.StatusCode.Should().Be(200);
             allQuizzes.Quizzes.Count.Should().Be(2);
-        }
-
-
-        private Guid _firstQuiz;
-        private Guid _secondQuiz;
-        private Guid _firstTask;
-        private Guid _secondTask;
-
-        private const string BaseRoute = "api/v1/quiz";
-        private const string GetAllRoute = BaseRoute + "/all";
-        private string GetQuizRoute(Guid id) => $"{BaseRoute}/{id.ToString()}";
-        private const string CreateQuizRoute = BaseRoute + "/new";
-        private HttpClient Client { get; set; }
-        private WebApplicationFactory<Startup> _factory;
-
-        private async Task AuthenticateAdminAsync(HttpClient client)
-        {
-            var response = await client.PostAsync(
-                "api/auth/v1/user/authenticate",
-                new AuthenticationRequest
-                {
-                    Email = "admin",
-                    Password = "admin"
-                }.ToJsonContent());
-
-            var token = await response.Content.ReadAsStringAsync();
-            client.SetJwt(token);
         }
     }
 }

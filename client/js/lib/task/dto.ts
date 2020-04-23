@@ -1,6 +1,7 @@
 import { Task } from "./models";
 
 export class CreateTaskRequest {
+    public weight: number;
     public question: string;
     public answer: string;
     public variants: string[];
@@ -10,6 +11,7 @@ export class CreateTaskRequest {
             answer: task.answer,
             question: task.question,
             variants: task.variants,
+            weight: task.weight,
         };
     }
 }
@@ -19,6 +21,7 @@ export class CreateTaskResponse {
 }
 
 export class GetTaskResponse {
+    public weight: number;
     public taskId: string;
     public question: string;
     public answer: string;
@@ -26,6 +29,7 @@ export class GetTaskResponse {
     public static toModel(task: GetTaskResponse): Task {
         return {
             answer: task.answer,
+            weight: task.weight,
             question: task.question,
             taskId: task.taskId,
             variants: task.variants,

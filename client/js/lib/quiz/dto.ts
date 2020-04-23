@@ -23,12 +23,14 @@ export class QuizInfoDto {
 }
 
 export class TaskResponse {
+    public weight: number;
     public taskId: string;
     public question: string;
     public answer: string;
     public variants: string[];
     public static toModel(task: TaskResponse): Task {
         return {
+            weight: task.weight,
             answer: task.answer,
             question: task.question,
             taskId: task.taskId,

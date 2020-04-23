@@ -13,12 +13,14 @@ namespace server.core.Application
             IUnitOfWork unitOfWork,
             string question,
             string answer,
-            IEnumerable<string> variants)
+            IEnumerable<string> variants,
+            int weight)
         {
             var task = VariantTask.CreateNew(
                 question,
                 answer,
-                variants.ToList());
+                variants.ToList(),
+                weight);
 
             await unitOfWork.Tasks.AddTaskAsync(task);
 

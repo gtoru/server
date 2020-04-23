@@ -100,7 +100,8 @@ namespace server.core.Api.Controllers.Tasks
                 unitOfWork,
                 request.Question,
                 request.Answer,
-                request.Variants);
+                request.Variants,
+                request.Weight);
 
             return Ok(new CreateTaskResponse
             {

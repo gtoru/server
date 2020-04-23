@@ -17,7 +17,8 @@ namespace Domain.Tests.Tasks
             _task = VariantTask.CreateNew(
                 "foo",
                 "bar",
-                new List<string> {"baz", "bar"});
+                new List<string> {"baz", "bar"},
+                2);
         }
 
         private VariantTask _task;

@@ -94,8 +94,23 @@ namespace server.core.Domain.Tasks
             IsFinished = true;
 
             for (var i = 0; i < Answers.Count; ++i)
-                if (Quiz.Tasks[i].Task.CheckAnswer(Answers[i]))
-                    Result += 1;
+            {
+                var task = Quiz.Tasks[i].Task;
+
+                if (task.CheckAnswer(Answers[i]))
+                    Result += task.Weight;
+            }
+        }
+
+        public int GetResult()
+        {
+            if (IsFinished || Expired())
+            {
+                Finish();
+                return Result;
+            }
+
+            throw new SessionNotFinishedException();
         }
 
         public bool Expired()

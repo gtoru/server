@@ -32,7 +32,8 @@ namespace Infrastructure.Tests.Repository
             _task = VariantTask.CreateNew(
                 Question,
                 Answer,
-                new List<string> {A, B, C});
+                new List<string> {A, B, C},
+                2);
 
             await unitOfWork.Tasks.AddTaskAsync(_task);
             await unitOfWork.SaveAsync();

@@ -38,12 +38,14 @@ namespace Infrastructure.Tests.Repository
             _firstTask = VariantTask.CreateNew(
                 "foo",
                 FirstAnswer,
-                new List<string> {"baz", "quuz", FirstAnswer});
+                new List<string> {"baz", "quuz", FirstAnswer},
+                2);
 
             _secondTask = VariantTask.CreateNew(
                 "bar",
                 SecondAnswer,
-                new List<string> {SecondAnswer, "quux", "baq"});
+                new List<string> {SecondAnswer, "quux", "baq"},
+                2);
 
             _quiz = Quiz.CreateNew(QuizName, new List<VariantTask> {_firstTask, _secondTask});
 

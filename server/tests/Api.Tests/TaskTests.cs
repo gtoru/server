@@ -73,6 +73,7 @@ namespace Api.Tests
                 {
                     Answer = Answer,
                     Question = Question,
+                    Weight = 2,
                     Variants = _variants
                 }.ToJsonContent());
             return JsonConvert
@@ -91,6 +92,7 @@ namespace Api.Tests
                 {
                     Answer = Answer,
                     Question = Question,
+                    Weight = 2,
                     Variants = _variants
                 }.ToJsonContent());
             var taskId =
@@ -122,6 +124,7 @@ namespace Api.Tests
                 {
                     Answer = Answer,
                     Question = Question,
+                    Weight = 2,
                     Variants = _variants
                 }.ToJsonContent());
 

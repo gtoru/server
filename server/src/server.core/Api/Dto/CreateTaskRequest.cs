@@ -11,6 +11,9 @@ namespace server.core.Api.Dto
         [JsonRequired]
         public string Answer { get; set; }
 
+        [JsonRequired]
+        public int Weight { get; set; }
+
         public List<string> Variants { get; set; }
     }
 }

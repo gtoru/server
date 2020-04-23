@@ -13,14 +13,13 @@ namespace Domain.Tests.Tasks
     [TestFixture]
     public class SessionTests
     {
-        private const string QuizName = "TestQuiz";
         [SetUp]
         public void SetUp()
         {
             _tasks = new List<VariantTask>
             {
-                VariantTask.CreateNew("foo", "bar", new List<string> {"baz", "bar", "quux"}),
-                VariantTask.CreateNew("baz", "foo", new List<string> {"foo", "bar"})
+                VariantTask.CreateNew("foo", "bar", new List<string> {"baz", "bar", "quux"}, 2),
+                VariantTask.CreateNew("baz", "foo", new List<string> {"foo", "bar"}, 2)
             };
 
             _user = User.CreateNew(
@@ -33,6 +32,8 @@ namespace Domain.Tests.Tasks
             _startTime = new DateTime(1970, 01, 01);
             _timeProvider.GetCurrent().Returns(_startTime);
         }
+
+        private const string QuizName = "TestQuiz";
 
         private User _user;
         private Quiz _quiz;
@@ -93,7 +94,7 @@ namespace Domain.Tests.Tasks
 
             session.Finish();
 
-            session.Result.Should().Be(1);
+            session.Result.Should().Be(2);
         }
 
         [Test]

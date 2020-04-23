@@ -30,6 +30,7 @@ describe("quiz client", () => {
             quizId: quizId,
             tasks: [
                 {
+                    weight: 2,
                     answer: "42",
                     question: "Meaning of life",
                     taskId: "123-456",

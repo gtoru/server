@@ -52,8 +52,10 @@ namespace server.core
             services.AddSingleton<StatusReporter>();
             services.AddSingleton<ShutdownManager>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddHttpContextAccessor();
             services.AddSingleton<IAuthenticator, JwtAuthenticator>();
             services.AddSingleton<IAuthorizationHandler, AccessLevelHandler>();
+            services.AddSingleton<IAuthorizationHandler, UserIdRouteHandler>();
             services.AddCors(options =>
             {
                 options.AddPolicy("localhost", builder =>
@@ -109,6 +111,8 @@ namespace server.core
                 options.AddPolicy(AuthorizationPolicy.EveryoneAllowed, policy =>
                     policy.Requirements.Add(new AccessLevelRequirement(AccessLevel.User))
                 );
+                options.AddPolicy(AuthorizationPolicy.CanOnlyAccessOwnSessions, policy =>
+                    policy.Requirements.Add(new UserIdRouteRequirement("/api/v1/user")));
             });
             services.AddSwaggerGen(options =>
             {

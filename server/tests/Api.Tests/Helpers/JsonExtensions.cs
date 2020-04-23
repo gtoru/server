@@ -1,7 +1,6 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
 namespace Api.Tests.Helpers
