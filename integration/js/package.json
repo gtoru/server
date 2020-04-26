@@ -10,10 +10,11 @@
     ]
   },
   "scripts": {
-    "test": "yarn test:auth && yarn test:task && yarn test:quiz",
+    "test": "yarn test:auth && yarn test:task && yarn test:quiz && yarn test:user",
     "test:auth": "jest --env node --config jest.auth.config.js",
     "test:task": "jest --env node --config jest.task.config.js",
-    "test:quiz": "jest --env node --config jest.quiz.config.js"
+    "test:quiz": "jest --env node --config jest.quiz.config.js",
+    "test:user": "jest --env node --config jest.user.config.js"
   },
   "devDependencies": {
     "@types/jest": "^25.2.1",
