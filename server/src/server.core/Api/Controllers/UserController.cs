@@ -89,7 +89,7 @@ namespace server.core.Api.Controllers
         [Route("{userId}/sessions/results")]
         public async Task<ActionResult<GetResultsResponse>> GetResultsAsync(
             [FromServices] IUnitOfWork unitOfWork,
-            [FromQuery] Guid userId)
+            [FromRoute] Guid userId)
         {
             try
             {

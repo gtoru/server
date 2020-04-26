@@ -84,6 +84,9 @@ namespace server.core.Domain.Tasks
             }
 
             Answers[taskNumber] = guess;
+
+            // HACK: forcing EF to notice changes and update entry
+            Answers = new List<string>(Answers);
         }
 
         public void Finish()
