@@ -1,3 +1,15 @@
+export { UserClient } from "./user/userclient";
+export {
+    CorrectAnswer,
+    Guess,
+    QuizTask,
+    TaskNumber,
+    Result,
+    TestSessionId,
+    TestSessionInfo,
+    TestSessionResult,
+    TaskAnswer,
+} from "./user/models";
 export { TaskClient } from "./task/taskclient";
 export { Question, Answer, Task, TaskId, TaskWeight } from "./task/models";
 export { QuizClient } from "./quiz/quizclient";
