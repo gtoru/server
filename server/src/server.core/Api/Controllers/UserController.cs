@@ -10,6 +10,7 @@ using server.core.Domain.Error;
 using server.core.Domain.Tasks;
 using server.core.Infrastructure;
 using server.core.Infrastructure.Error.NotFound;
+using Swashbuckle.AspNetCore.Annotations;
 using AuthorizationPolicy = server.core.Api.Authorization.AuthorizationPolicy;
 
 namespace server.core.Api.Controllers
@@ -161,6 +162,26 @@ namespace server.core.Api.Controllers
                 _log.LogWarning("user {UserId} not found");
                 return NotFound();
             }
+        }
+
+        [HttpGet]
+        [Authorize(AuthorizationPolicy.OnlyAdmins)]
+        [Route("count")]
+        [SwaggerOperation(
+            Description = "Needs admin rights",
+            Summary = "Returns current total user count")]
+        [SwaggerResponse(200, "User count returned", typeof(UserCountResponse))]
+        [SwaggerResponse(401, "Unauthorized")]
+        [SwaggerResponse(403, "Not an admin")]
+        public async Task<ActionResult<UserCountResponse>> GetUserCountAsync(
+            [FromServices] IUnitOfWork unitOfWork)
+        {
+            var userCount = await UserManager.GetUserCountAsync(unitOfWork);
+
+            return Ok(new UserCountResponse
+            {
+                UserCount = userCount
+            });
         }
 
         private static TestSessionResponse SessionToResponse(TestSession session)

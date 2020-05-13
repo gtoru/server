@@ -8,5 +8,6 @@ namespace server.core.Domain.Storage
         Task<User> FindUserAsync(string email);
         Task<User> FindUserAsync(Guid id);
         Task AddUserAsync(User user);
+        Task<int> GetUserCountAsync();
     }
 }

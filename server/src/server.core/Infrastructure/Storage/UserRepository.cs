@@ -94,5 +94,13 @@ namespace server.core.Infrastructure.Storage
 
             await _dbContext.Users.AddAsync(user);
         }
+
+        public async Task<int> GetUserCountAsync()
+        {
+            var userCount = await _dbContext.Users
+                .CountAsync();
+
+            return userCount;
+        }
     }
 }

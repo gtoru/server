@@ -15,5 +15,12 @@ namespace server.core.Application
 
             return (user.Email.Address, user.PersonalInfo);
         }
+
+        public static async Task<int> GetUserCountAsync(IUnitOfWork unitOfWork)
+        {
+            var userCount = await unitOfWork.Users.GetUserCountAsync();
+
+            return userCount;
+        }
     }
 }
