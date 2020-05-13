@@ -55,3 +55,7 @@ export class AnswerDto {
 export class AddAnswersRequest {
     public answers: AnswerDto[];
 }
+
+export class UserCountResponse {
+    public userCount: number;
+}

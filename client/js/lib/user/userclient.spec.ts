@@ -6,6 +6,7 @@ import {
     TestSessionResultsResponse,
     TestSessionResultResponse,
     AddAnswersRequest,
+    UserCountResponse,
 } from "./dto";
 
 const baseUrl = "http://localhost";
@@ -155,6 +156,25 @@ describe("user client", () => {
         expect(answerAdd.responseCode).toBe(200);
         expect(answerAdd.errorInfo).toBeUndefined();
         expect(answerAdd.responseData).toBeUndefined();
+
+        scope.done();
+    });
+
+    it("gets user count", async () => {
+        const response: UserCountResponse = {
+            userCount: 42,
+        };
+
+        const scope = nock(baseUrl)
+            .get("/api/v1/user/count")
+            .matchHeader("Authorization", `Bearer ${token}`)
+            .reply(200, JSON.stringify(response));
+
+        const userCountResponse = await client.getUserCountAsync(token);
+
+        expect(userCountResponse.errorInfo).toBeUndefined();
+        expect(userCountResponse.responseCode).toBe(200);
+        expect(userCountResponse.responseData).toBe(42);
 
         scope.done();
     });

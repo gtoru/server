@@ -10,6 +10,7 @@ import {
     TestSessionResultResponse,
     AddAnswersRequest,
     AnswerDto,
+    UserCountResponse,
 } from "./dto";
 import * as r from "../common/request";
 import { Response } from "../common/models";
@@ -173,5 +174,21 @@ export class UserClient extends ClientBase {
         };
 
         return await r.tryMakeRequestAsync(request, () => undefined);
+    }
+
+    public async getUserCountAsync(
+        token: AuthToken,
+        timeout = 30000
+    ): Promise<Response<number>> {
+        const request = (): Promise<axios.AxiosResponse<UserCountResponse>> => {
+            return this.rest.get("api/v1/user/count", {
+                timeout: timeout,
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
+            });
+        };
+
+        return await r.tryMakeRequestAsync(request, (r) => r.userCount);
     }
 }
