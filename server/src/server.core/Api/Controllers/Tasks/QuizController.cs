@@ -86,6 +86,7 @@ namespace server.core.Api.Controllers.Tasks
 
         [HttpGet]
         [Route("all")]
+        [Authorize(AuthorizationPolicy.EveryoneAllowed)]
         [SwaggerOperation(
             Description = "Only retrieves quiz info",
             Summary = "Returns all available quizzes")]
