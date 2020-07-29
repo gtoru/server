@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - "server/**/*"
+    tags:
+      - "release"
   pull_request:
     branches:
       - master
@@ -55,6 +57,20 @@ jobs:
         run: docker build -t docker.pkg.github.com/gtoru/server/server --target deploy server/
       - name: Publish Latest Image
         run: docker push docker.pkg.github.com/gtoru/server/server
+
+  push_prod_image:
+    runs-on: ubuntu-latest
+    name: Publish Production image
+    if: startsWith(github.ref, 'refs/tags/release')
+    needs: [build, unit-tests, integration_tests]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Docker Login
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u gtoru --password-stdin
+      - name: Build Image
+        run: docker build -t docker.pkg.github.com/gtoru/server/server:$(echo $GITHUB_REF | cut -d'/' -f 3) --target deploy server/
+      - name: Publish Image
+        run: docker push docker.pkg.github.com/gtoru/server/server:$(echo $GITHUB_REF | cut -d'/' -f 3)
 
   update_job:
     runs-on: ubuntu-latest
