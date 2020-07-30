@@ -5,7 +5,7 @@ on:
     paths:
       - "server/**/*"
     tags:
-      - "release"
+      - "release*"
   pull_request:
     branches:
       - master
