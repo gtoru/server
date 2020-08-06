@@ -9,6 +9,7 @@ export {
     TestSessionInfo,
     TestSessionResult,
     TaskAnswer,
+    UserStats,
 } from "./user/models";
 export { TaskClient } from "./task/taskclient";
 export { Question, Answer, Task, TaskId, TaskWeight } from "./task/models";
