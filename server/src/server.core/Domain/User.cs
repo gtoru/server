@@ -97,5 +97,24 @@ namespace server.core.Domain
 
             TestSessions.Add(session);
         }
+
+        public int GetRecentResult()
+        {
+            var lastSession = TestSessions.LastOrDefault();
+
+            if (HasActiveSession() && TestSessions.Count >= 2)
+                lastSession = TestSessions[^2];
+
+            if (lastSession == null)
+                throw new NoFinishedSessionsException();
+
+            return lastSession.Result;
+        }
+
+        public bool HasFinishedSession()
+        {
+            return HasActiveSession() && TestSessions.Count >= 2 ||
+                   !HasActiveSession() && TestSessions.Count >= 1;
+        }
     }
 }

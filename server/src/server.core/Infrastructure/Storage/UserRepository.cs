@@ -102,5 +102,11 @@ namespace server.core.Infrastructure.Storage
 
             return userCount;
         }
+
+        public async Task<IQueryable<User>> GetUsersByConditionAsync(Func<User, bool> condition)
+        {
+            return _dbContext.Users
+                .Include(u => u.TestSessions).Where(condition) as IQueryable<User>;
+        }
     }
 }

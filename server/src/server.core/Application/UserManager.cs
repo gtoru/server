@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using server.core.Domain;
 using server.core.Infrastructure;
@@ -21,6 +23,13 @@ namespace server.core.Application
             var userCount = await unitOfWork.Users.GetUserCountAsync();
 
             return userCount;
+        }
+
+        public static async Task<IEnumerable<(string, int)>> GetUsersWithFinishedSessions(IUnitOfWork unitOfWork)
+        {
+            return (await unitOfWork.Users.GetUsersByConditionAsync(u => u.HasFinishedSession()))
+                .AsEnumerable()
+                .Select(u => (u.Email.Address, u.GetRecentResult()));
         }
     }
 }

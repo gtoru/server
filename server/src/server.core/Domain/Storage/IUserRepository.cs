@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace server.core.Domain.Storage
@@ -9,5 +10,6 @@ namespace server.core.Domain.Storage
         Task<User> FindUserAsync(Guid id);
         Task AddUserAsync(User user);
         Task<int> GetUserCountAsync();
+        Task<IQueryable<User>> GetUsersByConditionAsync(Func<User, bool> condition);
     }
 }

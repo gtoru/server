@@ -28,6 +28,20 @@ namespace server.core.Api.Controllers
             _log = log;
         }
 
+        [HttpGet]
+        [Route("stats")]
+        [Authorize(AuthorizationPolicy.OnlyAdmins)]
+        public async Task<ActionResult<UserStatsResponse>> GetUserStats(
+            [FromServices] IUnitOfWork unitOfWork)
+        {
+            var users = await UserManager.GetUsersWithFinishedSessions(unitOfWork);
+
+            return Ok(new UserStatsResponse
+            {
+                UserStats = users.Select(u => new UserStats {Email = u.Item1, Result = u.Item2}).ToList()
+            });
+        }
+
         [HttpPost]
         [Route("{userId}/sessions/new")]
         [Authorize(AuthorizationPolicy.CanOnlyAccessOwnSessions)]
