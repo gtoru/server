@@ -1,4 +1,4 @@
-import { TestSessionInfo, TestSessionResult } from "./models";
+import { TestSessionInfo, TestSessionResult, UserStats } from "./models";
 
 export class NewSessionRequest {
     public quizId: string;
@@ -58,4 +58,20 @@ export class AddAnswersRequest {
 
 export class UserCountResponse {
     public userCount: number;
+}
+
+export class UserStatsResponse {
+    public userStats: UserStatsDto[];
+}
+
+export class UserStatsDto {
+    public email: string;
+    public result: number;
+
+    public static toModel(dto: UserStatsDto): UserStats {
+        return {
+            result: dto.result,
+            userMail: dto.email,
+        };
+    }
 }

@@ -1,5 +1,10 @@
 import { ClientBase } from "../common/client";
-import { TestSessionInfo, TestSessionResult, TaskAnswer } from "./models";
+import {
+    UserStats,
+    TestSessionInfo,
+    TestSessionResult,
+    TaskAnswer,
+} from "./models";
 import { QuizId } from "../quiz/models";
 import { AuthToken, UserId } from "../auth/models";
 import * as axios from "axios";
@@ -11,6 +16,8 @@ import {
     AddAnswersRequest,
     AnswerDto,
     UserCountResponse,
+    UserStatsResponse,
+    UserStatsDto,
 } from "./dto";
 import * as r from "../common/request";
 import { Response } from "../common/models";
@@ -190,5 +197,23 @@ export class UserClient extends ClientBase {
         };
 
         return await r.tryMakeRequestAsync(request, (r) => r.userCount);
+    }
+
+    public async getUserStatsAsync(
+        token: AuthToken,
+        timeout = 30000
+    ): Promise<Response<UserStats[]>> {
+        const request = (): Promise<axios.AxiosResponse<UserStatsResponse>> => {
+            return this.rest.get("api/v1/user/stats", {
+                timeout: timeout,
+                headers: {
+                    Authorization: "Bearer " + token,
+                },
+            });
+        };
+
+        return await r.tryMakeRequestAsync(request, (r) =>
+            r.userStats.map((x) => UserStatsDto.toModel(x))
+        );
     }
 }

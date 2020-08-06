@@ -1,4 +1,5 @@
 import { Question } from "../task/models";
+import { Email } from "../auth/models";
 
 export type TestSessionId = string;
 
@@ -27,5 +28,10 @@ export class TestSessionInfo {
 
 export class TestSessionResult {
     testSessionId: TestSessionId;
+    result: Result;
+}
+
+export class UserStats {
+    userMail: Email;
     result: Result;
 }
